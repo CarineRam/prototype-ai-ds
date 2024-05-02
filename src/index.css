@@ -53,5 +53,12 @@
   --background-end-rgb: 255, 255, 255;
 } */
 
+form{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
 
 

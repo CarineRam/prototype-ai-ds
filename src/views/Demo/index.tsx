@@ -1,13 +1,16 @@
-// import React from 'react'
+// import React from 'react';
+import { useState } from 'react';
+import { FaFileUpload } from "react-icons/fa";
 
 // type Props = {}{}: Props
 
-function index() {
+function Demo() {
+  const [fileName, setFileName] = useState("No selected file")
   return (
     <>
-      <div className="ai-ds-prototype min-h-[100vh] bg-slate-900 w-[100vw] ">
+      <div className="ai-ds-prototype min-h-[100vh] bg-slate-900 w-[100vw] bg-[url('./assets/background.png')] bg-cover">
         <div className="xl:pt-28 xl:pl-36 pt-10 pl-10">
-          <p className="xl:text-4xl text-gray-300 text-lg xl:pb-10">Refonte Prototype for Demo</p>
+          <p className="xl:text-4xl text-gray-300 text-lg xl:pb-10 ">Refonte Prototype for Demo</p>
         </div>
         <div style={{ width: '100%', height: '1px', backgroundColor: 'gray' }}></div>
         <div className="flex xl:gap-16 gap-5 text-gray-300 xl:mt-16 mt-7 xl:pl-36 pl-10 xl:pr-28 pr-10 pb-10">
@@ -20,10 +23,14 @@ function index() {
             </button>
           </div>
           <div className="w-6/12">
-            <div className="bg-slate-200 rounded-xl p-10 border-2 text-gray-800 h-[50vh] ">
-              test
+            <form 
+              className="bg-slate-200 rounded-xl p-10 border-2 text-gray-800 h-[50vh]"
+              onClick={() => document.querySelector(".input-field").click()}>
+                <input type="file" accept='image/*' className="input-field" hidden/>
+                <FaFileUpload className='xl:text-6xl'/>
+                {/* <p className='mt-5'>Drag and drop the files</p> */}
               
-            </div>
+            </form>
             <div className="grid">
               <button className="bg-slate-200 text-slate-900 mt-10 rounded-lg border border-slate-900 justify-center hover:text-slate-200 hover:bg-slate-700">
                 <p className="justify-center pt-5 pb-5 pl-10 pr-10">Upload</p>
@@ -36,7 +43,7 @@ function index() {
                 Train & Test
               </button>
               <button className="bg-slate-200 text-slate-900 xl:p-5 p-2 xl:mt-10 mt-5 w-[100%] rounded-lg border border-slate-900 hover:bg-slate-900 hover:text-slate-200 hover:border-slate-200">
-                Vizualize
+                Visualize
               </button>
             </div>
           </div>
@@ -46,4 +53,4 @@ function index() {
   )
 }
 
-export default index
+export default Demo
