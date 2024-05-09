@@ -5,44 +5,49 @@ import { LuRefreshCcw } from "react-icons/lu";
 function Prompt() {
   const [count, setCount] = useState<number>(0);
   const [countTokens, setCountTokens] = useState<number>(0);
-  const [circlePosition, setCirclePosition] = useState<number>(0);
   const [inputValue, setInputValue] = useState<string>('');
-  const [isDragging, setIsDragging] = useState<boolean>(false);
   const [content, setContent] = useState(null);
-  const [buttonPushed, setButtonPushed] = useState(null);
-
+  const [buttonPushed, setButtonPushed] = useState(1);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
     const barWidth = e.currentTarget.clientWidth;
     const newLeft = e.clientX - e.currentTarget.getBoundingClientRect().left;
     const clampedLeft = Math.max(0, Math.min(newLeft, barWidth));
-    const value = clampedLeft / barWidth;
-    setCirclePosition(clampedLeft);
+    const value = clampedLeft / barWidth;   
     setCount(parseFloat(value.toFixed(2)));
+  };
+
+  const handleMouseMoveTokens = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
+    const barWidth = e.currentTarget.clientWidth;
+    const newLeft = e.clientX - e.currentTarget.getBoundingClientRect().left;
+    const clampedLeft = Math.max(0, Math.min(newLeft, barWidth));
+    const valueTokens = clampedLeft / barWidth;
+    const newValueTokens = Math.min(4096, Math.max(0, Math.round(valueTokens * 4096)));
+    setCountTokens(parseFloat(newValueTokens.toFixed(2)));
   };
 
   const handleIncrement = () => {
     const newValue = Math.min(1, count + 0.01);
     setCount(parseFloat(newValue.toFixed(2)));
-    setCirclePosition(newValue * 270);
+    // setCirclePosition(newValue * 270);
   }
 
   const handleDecrement = () => {
     const newValue = Math.max(0, count - 0.01);
     setCount(parseFloat(newValue.toFixed(2)));
-    setCirclePosition(parseFloat(newValue.toFixed(2)));
+    // setCirclePosition(parseFloat(newValue.toFixed(2)));
   }
 
   const handleIncrementTokens = () => {
     const newValueTokens = Math.min(4096, countTokens + 25);
     setCountTokens(parseFloat(newValueTokens.toFixed(2)));
-    setCirclePosition(newValueTokens * 270);
+    // setCirclePosition(newValueTokens * 270);
   }
 
   const handleDecrementTokens = () => {
     const newValueTokens = Math.max(0, countTokens - 25);
     setCountTokens(parseFloat(newValueTokens.toFixed(2)));
-    setCirclePosition(parseFloat(newValueTokens.toFixed(2)));
+    // setCirclePosition(parseFloat(newValueTokens.toFixed(2)));
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,7 +56,7 @@ function Prompt() {
     if (!isNaN(parseFloat(newValue))) {
       const clampedValue = Math.min(1, Math.max(0, parseFloat(newValue)));
       setCount(parseFloat(clampedValue.toFixed(2)));
-      setCirclePosition(clampedValue * 270);
+      // setCirclePosition(clampedValue * 270);
     }
   }
 
@@ -61,20 +66,14 @@ function Prompt() {
     if (!isNaN(parseFloat(newValueTokens))) {
       const clampedValueTokens = Math.min(4096, Math.max(0, parseFloat(newValueTokens)));
       setCountTokens(parseFloat(clampedValueTokens.toFixed(2)));
-      setCirclePosition(clampedValueTokens * 270);
+      // setCirclePosition(clampedValueTokens * 270);
     }
   }
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    setIsDragging(true);
-  }
-
-  const hanldeMouseUp = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    setIsDragging(false);
-  }
-
   const showContentEditor = () => {
-    setContent(<p>Editor</p>)
+    setContent(
+    <textarea className="w-full bg-slate-200">Editor</textarea>
+  )
     setButtonPushed(1);
   }
 
@@ -82,8 +81,6 @@ function Prompt() {
     setContent(<p>Examples</p>)
     setButtonPushed(2);
   }
-
-
 
   useEffect(() => {
     showContentEditor();
@@ -199,16 +196,12 @@ function Prompt() {
                 </div>
               </div >
               <div className="relative ">
-                <div
-                  className="bg-slate-400 h-1.5 rounded-full"
-
-                ></div>
-                <div
-                  className="w-5 h-5 bg-slate-600 rounded-full top-0 -mt-3 left-0"
-                  style={{ left: '${circlePosition}px' }}
-                  onMouseDown={handleMouseDown}
-                  onMouseUp={hanldeMouseUp}
-                ></div>
+                
+                <input
+                  className="w-full h-5 bg-slate-600 rounded-full top-0 -mt-3 left-0"
+                  type='range'
+                  onMouseMove={handleMouseMove}
+                ></input>
               </div>
             </div>
 
@@ -227,16 +220,12 @@ function Prompt() {
                 </div>
               </div >
               <div className="relative ">
-                <div
-                  className="bg-slate-400 h-1.5 rounded-full"
-
-                ></div>
-                <div
-                  className="w-5 h-5 bg-slate-600 rounded-full top-0 -mt-3 left-0"
-                  style={{ left: '${circlePosition}px' }}
-                  onMouseDown={handleMouseDown}
-                  onMouseUp={hanldeMouseUp}
-                ></div>
+                
+                <input
+                  className=" h-5 bg-slate-600 rounded-full w-full top-0 -mt-3 left-0"
+                  type='range'
+                  onMouseMove={handleMouseMoveTokens}
+                ></input>
               </div>
             </div>
 
