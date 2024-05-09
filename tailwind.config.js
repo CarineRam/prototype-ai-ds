@@ -2,7 +2,8 @@
 export default {
   content: [
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/views/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
@@ -18,6 +19,7 @@ export default {
       "chackra-semibold": ["ChakraPetch-semibold", "sans-serif"],
       "chackra-semibold-italic": ["ChakraPetch-semibold-italic", "sans-serif"],
       "protest-regular": ["ProtestStrike-regular", "sans-serif"],
+      "type-machine": ["Type-machine", "sans-serif"],
     },
   },
   },

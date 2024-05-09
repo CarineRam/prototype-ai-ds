@@ -46,6 +46,10 @@
   font-family: ProtestStrike-regular;
   src: url("/fonts/ProtestStrike-Regular.ttf");
 }
+@font-face {
+  font-family: Type-machine;
+  src: url("/fonts/Type-Machine.ttf");
+}
 
 /* :root {
   --foreground-rgb: 0,0,0;
@@ -59,6 +63,6 @@ form{
   justify-content: center;
   align-items: center;
   cursor: pointer;
-}
+} 
 
 
