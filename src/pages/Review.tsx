@@ -175,7 +175,7 @@ function Review() {
           <div className="modal-evaluation text-slate-200">
             <div className="flex justify-between">
               <h1 className="text-xl mb-10 mt-5"><strong>Evaluation Setup</strong></h1>
-              <a href='/review'><GoXCircle className="text-4xl" /></a>
+              <button onClick={toggleModalEvaluation}><GoXCircle className="text-4xl" /></button>
             </div>
 
             <div className="flex bg-slate-300 text-slate-800 gap-5 w-[70vw] border border-slate-700 ">
@@ -266,7 +266,7 @@ function Review() {
           <div className="modal-evaluation text-slate-200">
             <div className="flex justify-between">
               <h1 className="text-xl mb-10 mt-5"><strong>Evaluation Setup (step 2)</strong></h1>
-              <a href='/review'><GoXCircle className="text-4xl" /></a>
+              <button onClick={toggleModalEvaluation}><GoXCircle className="text-4xl" /></button>
             </div>
 
             <div className="flex bg-slate-300 text-slate-800 gap-5 w-[70vw] border border-slate-700 ">
@@ -380,7 +380,7 @@ function Review() {
             <div className="modal-evaluation w-[73vw] text-slate-200">
               <div className="flex justify-between">
                 <h1 className="text-xl mb-10 mt-5"><strong>Lauch Inference Batch</strong></h1>
-                <a href='/review'><GoXCircle className="text-4xl" /></a>
+                <button onClick={toggleModalBulk}><GoXCircle className="text-4xl" /></button>
               </div>
 
               <div>
