@@ -1,79 +1,47 @@
 import { FaUpload } from "react-icons/fa6";
-import { useState, useEffect } from 'react'
+import { useState, useEffect, ReactNode } from 'react'
 import { LuRefreshCcw } from "react-icons/lu";
 
 function Prompt() {
-  const [count, setCount] = useState<number>(0);
-  const [countTokens, setCountTokens] = useState<number>(0);
-  const [inputValue, setInputValue] = useState<string>('');
-  const [content, setContent] = useState(null);
+  const [content, setContent] = useState<ReactNode | null>(null);
   const [buttonPushed, setButtonPushed] = useState(1);
+  const [temperature, setTemperature] = useState<number>(0);
+  const [tokens, setTokens] = useState<number>(0);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
-    const barWidth = e.currentTarget.clientWidth;
-    const newLeft = e.clientX - e.currentTarget.getBoundingClientRect().left;
-    const clampedLeft = Math.max(0, Math.min(newLeft, barWidth));
-    const value = clampedLeft / barWidth;   
-    setCount(parseFloat(value.toFixed(2)));
-  };
-
-  const handleMouseMoveTokens = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
-    const barWidth = e.currentTarget.clientWidth;
-    const newLeft = e.clientX - e.currentTarget.getBoundingClientRect().left;
-    const clampedLeft = Math.max(0, Math.min(newLeft, barWidth));
-    const valueTokens = clampedLeft / barWidth;
-    const newValueTokens = Math.min(4096, Math.max(0, Math.round(valueTokens * 4096)));
-    setCountTokens(parseFloat(newValueTokens.toFixed(2)));
+  const handleTemperatureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTemperature = parseFloat(e.target.value);
+    setTemperature(newTemperature);
   };
 
   const handleIncrement = () => {
-    const newValue = Math.min(1, count + 0.01);
-    setCount(parseFloat(newValue.toFixed(2)));
-    // setCirclePosition(newValue * 270);
+    const newTemperature = Math.min(1, temperature + 0.01);
+    setTemperature(parseFloat(newTemperature.toFixed(2)));
   }
 
   const handleDecrement = () => {
-    const newValue = Math.max(0, count - 0.01);
-    setCount(parseFloat(newValue.toFixed(2)));
-    // setCirclePosition(parseFloat(newValue.toFixed(2)));
+    const newTemperature = Math.max(0, temperature - 0.01);
+    setTemperature(parseFloat(newTemperature.toFixed(2)));
+  }
+
+  const handleTokensChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTokens = parseFloat(e.target.value);
+    setTokens(newTokens);
   }
 
   const handleIncrementTokens = () => {
-    const newValueTokens = Math.min(4096, countTokens + 25);
-    setCountTokens(parseFloat(newValueTokens.toFixed(2)));
-    // setCirclePosition(newValueTokens * 270);
+    const newTokens = Math.min(4100, tokens + 25);
+    setTokens(parseFloat(newTokens.toFixed(2)));
   }
 
   const handleDecrementTokens = () => {
-    const newValueTokens = Math.max(0, countTokens - 25);
-    setCountTokens(parseFloat(newValueTokens.toFixed(2)));
-    // setCirclePosition(parseFloat(newValueTokens.toFixed(2)));
-  }
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    setInputValue(newValue);
-    if (!isNaN(parseFloat(newValue))) {
-      const clampedValue = Math.min(1, Math.max(0, parseFloat(newValue)));
-      setCount(parseFloat(clampedValue.toFixed(2)));
-      // setCirclePosition(clampedValue * 270);
-    }
-  }
-
-  const handleInputChangeTokens = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValueTokens = e.target.value;
-    setInputValue(newValueTokens);
-    if (!isNaN(parseFloat(newValueTokens))) {
-      const clampedValueTokens = Math.min(4096, Math.max(0, parseFloat(newValueTokens)));
-      setCountTokens(parseFloat(clampedValueTokens.toFixed(2)));
-      // setCirclePosition(clampedValueTokens * 270);
-    }
+    const newTokens = Math.max(0, tokens - 25);
+    setTokens(parseFloat(newTokens.toFixed(2)));
   }
 
   const showContentEditor = () => {
     setContent(
-    <textarea className="w-full bg-slate-200">Editor</textarea>
-  )
+      <textarea className="w-full bg-slate-200">Editor</textarea>
+    )
     setButtonPushed(1);
   }
 
@@ -84,7 +52,7 @@ function Prompt() {
 
   useEffect(() => {
     showContentEditor();
-  }, []); 
+  }, []);
 
   return (
     <>
@@ -98,14 +66,14 @@ function Prompt() {
 
         <div className="flex justify-between mt-10 text-lg">
           <div className="flex">
-            <button 
+            <button
               className={`pl-5 pr-5 pt-3 pb-3 border border-slate-500 rounded-l-lg hover:bg-slate-600 ${buttonPushed === 1 ? 'bg-slate-500' : ''}`}
               onClick={showContentEditor}
             >
               Editor
             </button>
             <button
-              className={`pl-5 pr-5 pt-3 pb-3 border border-slate-500 rounded-r-lg hover:bg-slate-600 ${buttonPushed === 2 ? 'bg-slate-500':''}`}
+              className={`pl-5 pr-5 pt-3 pb-3 border border-slate-500 rounded-r-lg hover:bg-slate-600 ${buttonPushed === 2 ? 'bg-slate-500' : ''}`}
               onClick={showContentExamples}
             >
               Few-Shot Examples
@@ -188,19 +156,23 @@ function Prompt() {
                   <button onClick={handleDecrement}>-&nbsp; </button>
                   <input
                     type="text"
-                    value={count}
-                    onChange={handleInputChange}
+                    value={temperature}
+                    // onChange={handleInputChange}
                     className="input w-20 border border-slate-600 rounded-md pl-2 pr-2"
                   />
                   <button onClick={handleIncrement}> &nbsp;+</button>
                 </div>
               </div >
               <div className="relative ">
-                
+
                 <input
                   className="w-full h-5 bg-slate-600 rounded-full top-0 -mt-3 left-0"
                   type='range'
-                  onMouseMove={handleMouseMove}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  value={temperature}
+                  onChange={handleTemperatureChange}
                 ></input>
               </div>
             </div>
@@ -212,19 +184,23 @@ function Prompt() {
                   <button onClick={handleDecrementTokens}>-&nbsp; </button>
                   <input
                     type="text"
-                    value={countTokens}
-                    onChange={handleInputChangeTokens}
+                    value={tokens}
+                    // onChange={handleInputChangeTokens}
                     className="input w-20 border border-slate-600 rounded-md pl-2 pr-2"
                   />
                   <button onClick={handleIncrementTokens}> &nbsp;+</button>
                 </div>
               </div >
               <div className="relative ">
-                
+
                 <input
                   className=" h-5 bg-slate-600 rounded-full w-full top-0 -mt-3 left-0"
                   type='range'
-                  onMouseMove={handleMouseMoveTokens}
+                  min={0}
+                  max={4100}
+                  step={25}
+                  value={tokens}
+                  onChange={handleTokensChange}
                 ></input>
               </div>
             </div>

@@ -1,0 +1,35 @@
+body.active-modalEvaluation {
+    overflow-y: hidden;
+}
+
+.overlay {
+    background-color: #6e7e91;
+}
+
+/* .modal, .overlay {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    position: fixed;
+} */
+
+.modal-evaluation {
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    /* transform: translate(-50%, -50%); */
+    line-height: 1.4;
+    background: #6e7e91;
+    padding: 14px 28px;
+    border-radius: 3px;
+    /* max-width: 600px;
+    min-width: 300px; */
+}
+
+/* .close-modal-evaluation {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px 7px;
+} */

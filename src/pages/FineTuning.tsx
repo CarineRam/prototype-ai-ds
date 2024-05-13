@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, ReactNode } from 'react'
 
 
 function FineTuning() {
-  const [content, setContent] = useState(null);
+  const [content, setContent] = useState<ReactNode | null>(null);
   const [buttonPushed, setButtonPushed] = useState(1);
 
 

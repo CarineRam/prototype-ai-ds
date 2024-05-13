@@ -29,7 +29,6 @@ function App() {
           <Route path='demo' element={<Demo />} />
           <Route path='/' element={<Layout />} >
             <Route path='kernel' element={<Kernel />} />
-            <Route path='magicalcodex' element={<Magical_codex />} />
             <Route path='model' element={<Model/>} />
             <Route path='traintest' element={<TrainTest/>} />
             <Route path='visualize' element={<Visualization/>} />

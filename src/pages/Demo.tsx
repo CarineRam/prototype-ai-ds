@@ -20,7 +20,7 @@ function Demo() {
             <div>
               <Link
                 className='bg-slate-600 xl:p-10 p-2 border rounded-xl w-80 h-80 flex flex-col justify-center items-center'
-                to="/magicalcodex"
+                to="/summary"
               >
                 <img
                   className="w-[140px]"
