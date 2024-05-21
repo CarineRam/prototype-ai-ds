@@ -1,9 +1,9 @@
-// import React from 'react'
+import { useState, useEffect } from 'react'
+import axios from 'axios';
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import '../styles/App.css'
 import Demo from '../pages/Demo.tsx'
 import Kernel from '../pages/Kernel.tsx'
-import Magical_codex from '../pages/Magical_codex.tsx'
 import Layout from '../pages/Layout.tsx'
 import TrainTest from '../pages/TrainTest.tsx'
 import Model from '../pages/Model.tsx'
@@ -20,6 +20,17 @@ import AppVariants from '../pages/AppVariants.tsx'
 
 function App() {
 
+  const [data, setData] = useState([{}])
+
+  // useEffect(() => {
+  //   axios.get('http://localhost:5000/members')
+  //   .then(response => {
+  //     console.log(response.data);
+  //   })
+  //   .catch(error => {
+  //     console.error('Error:', error);
+  //   });
+  // },[])
 
   return (
     <>
