@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react'
-import axios from 'axios';
+// import { useState, useEffect } from 'react'
+// import axios from 'axios';
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import '../styles/App.css'
 import Demo from '../pages/Demo.tsx'
 import Kernel from '../pages/Kernel.tsx'
 import Layout from '../pages/Layout.tsx'
 import TrainTest from '../pages/TrainTest.tsx'
+import PreviewDataset from '../pages/PreviewDataset.tsx'
 import Model from '../pages/Model.tsx'
 import Visualization from '../pages/Visualization.tsx'
 import Summary from '../pages/Summary.tsx'
@@ -14,13 +15,14 @@ import FineTuning from '../pages/FineTuning.tsx'
 import Compare from '../pages/Compare.tsx'
 import Review from '../pages/Review.tsx'
 import AppVariants from '../pages/AppVariants.tsx'
+import { FileProvider } from './connect/FileContext.tsx';
 
 
 
 
 function App() {
 
-  const [data, setData] = useState([{}])
+  // const [data, setData] = useState([{}])
 
   // useEffect(() => {
   //   axios.get('http://localhost:5000/members')
@@ -34,24 +36,27 @@ function App() {
 
   return (
     <>
-      <BrowserRouter>
-        <Routes>
-          <Route index element={<Demo />} />
-          <Route path='demo' element={<Demo />} />
-          <Route path='/' element={<Layout />} >
-            <Route path='kernel' element={<Kernel />} />
-            <Route path='model' element={<Model/>} />
-            <Route path='traintest' element={<TrainTest/>} />
-            <Route path='visualize' element={<Visualization/>} />
-            <Route path='summary' element={<Summary/>} />
-            <Route path='prompt' element={<Prompt/>} />
-            <Route path='finetuning' element={<FineTuning/>} />
-            <Route path='compare' element={<Compare/>} />
-            <Route path='appvariants' element={<AppVariants/>} />
-            <Route path='review' element={<Review/>} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+      <FileProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route index element={<Demo />} />
+            <Route path='demo' element={<Demo />} />
+            <Route path='/' element={<Layout />} >
+              <Route path='kernel' element={<Kernel />} />
+              <Route path='previewdataset' element={<PreviewDataset />} />
+              <Route path='model' element={<Model />} />
+              <Route path='traintest' element={<TrainTest />} />
+              <Route path='visualize' element={<Visualization />} />
+              <Route path='summary' element={<Summary />} />
+              <Route path='prompt' element={<Prompt />} />
+              <Route path='finetuning' element={<FineTuning />} />
+              <Route path='compare' element={<Compare />} />
+              <Route path='appvariants' element={<AppVariants />} />
+              <Route path='review' element={<Review />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </FileProvider>
     </>
   )
 }

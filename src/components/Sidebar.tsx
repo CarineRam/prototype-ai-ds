@@ -3,6 +3,7 @@ import { FaDatabase } from "react-icons/fa6";
 import { IoIosGitNetwork } from "react-icons/io";
 import { BsHddNetwork } from "react-icons/bs";
 import { VscGraphLine } from "react-icons/vsc";
+import { CiViewTable } from "react-icons/ci";
 import { Link } from "react-router-dom";
 // type Props = {}
 
@@ -22,6 +23,13 @@ function Sidebar() {
                 className='pl-5 pt-5 pb-5 mb-5 flex'
                 to='/kernel'>
                 <FaDatabase className="text-2xl" /> <p className='text-xl'>&nbsp;Dataset</p>
+              </Link>
+            </li>
+            <li>
+              <Link
+                className='pl-5 pt-5 pb-5 mb-5 flex'
+                to='/previewdataset'>
+                <CiViewTable className="text-2xl" /> <p className='text-xl'>&nbsp;Preview Dataset</p>
               </Link>
             </li>
             <li>
