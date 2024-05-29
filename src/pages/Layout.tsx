@@ -15,7 +15,7 @@ function Layout() {
         window.location.pathname.startsWith('/kernel') ? <Sidebar/> : <Sidebar_codex/>
         }
       </div>
-      <div className="w-[85vw] min-h-[100vh]">
+      <div className="w-[85vw] min-h-[100vh] overflow-auto">
         <Outlet/>
       </div> 
     </div>
