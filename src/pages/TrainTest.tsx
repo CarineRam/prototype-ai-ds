@@ -1,29 +1,36 @@
-import {useFile} from '../components/connect/FileContext'
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useState, ChangeEvent } from 'react';
 
 function TrainTest() {
-  const {fileId} = useFile();
-  const [message, setMessage] = useState('');
-  const [accuracy, setAccuracy] = useState<number | null>(null);
+  const [trainPercentage, setTrainPercentage] = useState<number>(0);
+  const [testPercentage, setTestPercentage] = useState<number>(0);
+  const [visualizationData, setvisualizationData] = useState(null);
+  const [error, setError] = useState('');
+
+  const handleTrainChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setTrainPercentage(e.target.valueAsNumber);
+  }
+  const handleTestChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setTestPercentage(e.target.valueAsNumber);
+  }
 
   const onTrainModel = async () => {
-    if (!fileId) {
-      setMessage('Please upload a file first.');
+    if ((trainPercentage || 0) + (testPercentage || 0) !== 100) {
+      setError('The sum of train and test percentages must be 100.');
       return;
     }
-
     try {
-      const response = await axios.post(`http://localhost:5000/train`, {fileId});
-
-      setMessage('Training started successfully.');
-      setAccuracy(response.data.accuracy);
+      const trainFraction = (trainPercentage || 0) / 100;
+      const testFraction = (testPercentage || 0) / 100;
+      const response = await axios.post('http://localhost:5000/split_data', {
+        trainPercentage: trainFraction,
+        testPercentage: testFraction,
+      });
+      setvisualizationData(response.data);
+      setError('');
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        setMessage('Error starting training: ' + (error.response?.data?.error || error.message));
-      } else {
-        setMessage('An unexpected error occurred: ' + (error as Error).message);
-      }
+      console.error('Error splitting data:', error);
+      setError('Error splitting data. Please try again.');
     }
   };
 
@@ -31,22 +38,31 @@ function TrainTest() {
     <div className="pl-20 pt-20 pr-20 text-white">
       <h1 className="text-3xl mb-10"><strong>Train and Test</strong></h1>
 
-      <div className="flex gap-5 h-[60vh]">
+      <div className="flex gap-5 h-[60vh] text-slate-800">
         <div className="w-4/12 bg-slate-200 rounded-xl p-4">
           <h1 className="text-xl font-bold text-slate-800">Train</h1>
-          <button 
-            className="mt-10 bg-slate-400 p-6 rounded-xl border border-slate-700 w-full text-xl text-slate-800"
+          <div className='text-lg flex h-10 mb-5 mt-5'>
+            <label className='w-4/12'>Train Percentage:</label>
+            <input className='w-8/12 pl-3 border border-slate-800 rounded-lg' type="number" value={trainPercentage} onChange={handleTrainChange} max={100} min={0}/>
+          </div>
+          <div className='text-lg flex h-10 mb-5 mt-5'>
+            <label className='w-4/12'>Test Percentage:</label>
+            <input className='w-8/12 pl-3 border border-slate-800 rounded-lg' type="number" value={testPercentage} onChange={handleTestChange} />
+          </div>
+          <button
+            className="mt-5 bg-slate-400 p-6 rounded-xl border border-slate-700 w-full text-xl text-slate-800"
             onClick={onTrainModel}
           >Train and Test</button>
-          {message && <p>{message}</p>}
-          {accuracy !== null && (
-            <div>
-                <h3>Model Accuracy: {accuracy}</h3>
-            </div>
-          )}
+          {error && <div style={{ color: 'red' }}>{error}</div>}
         </div>
         <div className="w-8/12 bg-slate-200 rounded-xl p-4">
           <h1 className="text-xl font-bold text-slate-800">Object Class Distribution</h1>
+          {visualizationData && (
+            <div>
+              <h2>Visualization</h2>
+              {/* Visualization component or logic goes here */}
+            </div>
+          )}
         </div>
 
       </div>

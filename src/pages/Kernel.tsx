@@ -20,6 +20,7 @@ function Kernel() {
     axios.get('http://localhost:5000/datasets')
       .then(response => {
         setDatasets(response.data);
+        console.log("datasets",datasets)
       })
       .catch(error => {
         console.error('Error fetching datasets:', error)

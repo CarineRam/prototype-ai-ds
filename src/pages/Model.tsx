@@ -11,10 +11,10 @@ function Model() {
   const [buttonPushed, setButtonPushed] = useState(0);
   const [content, setContent] = useState<ReactNode | null>(null);
   const [models, setModels] = useState<string[]>([]);
-  const [selectedModel, setSelectedModel] = useState<string>('');
+  const [selectedModel, setSelectedModel] = useState<string>("");
   // const [modelContent, setModelContent] = useState<ReactNode | null>(null);
   const [modelDetails, setModelDetails] = useState<ModelDetails | null>(null);
-  const [isSubmitted, SetIsSubmitted] = useState<boolean>(false);
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
 
@@ -31,54 +31,35 @@ function Model() {
     axios.get('http://localhost:5000/models')
       .then(response => {
         setModels(response.data.models);
-        console.log('setModels:', models)
+        // console.log('setModels0:',response.data.models)
+        console.log('setModels1:', models)
       })
       .catch(error => {
         console.error('Error fetching models:', error);
       });
   }, [])
 
+  useEffect(() => {
+    if (selectedModel) {
+      fetchModelDetails(selectedModel);
+    }
+  }, [selectedModel]);
+
   const handleModelChange = (event: ChangeEvent<HTMLSelectElement>) => {
     console.log("Model selected:", event.target.value)
     setSelectedModel(event.target.value);
-    setError("");
+    // setError("");
+    // setModelDetails(null);
+    // setIsSubmitted(false);
   }
 
-  // const handleSubmit = () => {
-  //   axios
-  //     .post("http://localhost:5000/select_model", { model: selectedModel })
-  //     .then((response) => {
-  //       console.log("Model selected:", response.data);
-  //       fetchModelDetails(selectedModel)
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error selecting model:", error);
-  //     });
-  // };
-
-  const handleSubmit = () => {
-    console.log("selectedModel", selectedModel)
-    if (selectedModel) {
-      axios
-        .post("http://localhost:5000/select_model", { model: selectedModel })
-        .then((response) => {
-          // console.log("Model selected:", response.data);
-          fetchModelDetails(selectedModel);
-          SetIsSubmitted(true)
-        })
-        .catch((error) => {
-          console.error("Error selecting model:", error);
-        });
-    } else {
-      setError("Please select a model first");
-    }
-  };
-
   const fetchModelDetails = (model: string) => {
-    axios.post('http://localhost:5000/model_details', { model })
+    axios
+      .post('http://localhost:5000/model_details', { model })
       .then(response => {
         setModelDetails(response.data);
-        console.log('setModelDetails', modelDetails)
+        console.log('setModelDetails', response.data)
+        // return response.data;
       })
       .catch(error => {
         console.error('Error fetching model details:', error);
@@ -86,24 +67,20 @@ function Model() {
       });
   };
 
-  // const handleSubmit = () => {
-  //   console.log("Submit button clicked")
-  //   console.log(selectedModel)
-  //   if (selectedModel) {
-  //     console.log("Submitting model:", selectedModel);
-  //     fetchModelDetails(selectedModel)
-  //       // try {
-  //       //   // setModelSubmitted(true);
-  //       //   setModelDetails(<div>Hello</div>)
-  //       // } catch(error) {
-  //       //   console.error('Error fetching model details:', error);
-  //       // }
-  //   } else {
-  //       setError('Please select a model first')
-  //       // setModelDetails(<div>Please select a model first.</div>)
-  //       setModelDetails(null)
-  //   }
-  // }
+  // useEffect(() => {
+  //   handleSubmit();
+  //   showPublic();
+  // }, []);
+
+  const handleSubmit = () => {
+    console.log("Submit button clicked")
+    setIsSubmitted(true);
+  }
+
+  const handleClick = () => {
+    handleSubmit();
+    showPublic();
+  }
 
   useEffect(() => {
     if (models.length > 0) {
@@ -119,7 +96,7 @@ function Model() {
           <select
             className="text-black text-xl w-[30%] h-10 mt-5 rounded-lg bg-slate-200 pl-3 border border-slate-800 mr-5 mb-5"
             onChange={handleModelChange}
-            value={selectedModel}
+            // value={selectedModel}
           >
             <optgroup label="Choose a model">
               <option disabled hidden selected>Select a model</option>
@@ -129,13 +106,13 @@ function Model() {
             </optgroup>
           </select>
           <button
-            onClick={handleSubmit}
+            onClick={handleClick}
             className="text-black border border-slate-800 pr-10 pl-10 h-10 rounded-lg bg-slate-300"
           >
             Submit
           </button>
-          {/* <div>{modelContent}</div> */}
         </div>
+        
         {isSubmitted && modelDetails && (
           <div>
             <h2>{selectedModel}</h2>
@@ -149,6 +126,7 @@ function Model() {
             </ul>
           </div>
         )}
+        {error && <div style={{ color: 'red' }}>{error}</div>}
       </div>
     )
     setButtonPushed(2)
