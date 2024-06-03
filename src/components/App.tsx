@@ -16,6 +16,7 @@ import Compare from '../pages/Compare.tsx'
 import Review from '../pages/Review.tsx'
 import AppVariants from '../pages/AppVariants.tsx'
 import { FileProvider } from './connect/FileContext.tsx';
+import Histogram from './connect/Histogram.tsx'
 
 
 
@@ -53,6 +54,7 @@ function App() {
               <Route path='compare' element={<Compare />} />
               <Route path='appvariants' element={<AppVariants />} />
               <Route path='review' element={<Review />} />
+              <Route path='histogram' element={<Histogram/>} />
             </Route>
           </Routes>
         </BrowserRouter>

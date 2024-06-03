@@ -11,7 +11,7 @@ function Layout() {
         {window.location.pathname.startsWith('/dataset') ||
         window.location.pathname.startsWith('/model') ||
         window.location.pathname.startsWith('/traintest') ||
-        window.location.pathname.startsWith('/visualization') ||
+        window.location.pathname.startsWith('/visualize') ||
         window.location.pathname.startsWith('/kernel') ? <Sidebar/> : <Sidebar_codex/>
         }
       </div>

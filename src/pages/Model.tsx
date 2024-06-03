@@ -75,6 +75,23 @@ function Model() {
   const handleSubmit = () => {
     console.log("Submit button clicked")
     setIsSubmitted(true);
+
+    if (!selectedModel) {
+      console.error("No model selected");
+      return;
+    }
+
+    console.log("Selected model:", selectedModel);
+
+    axios
+      .post("http://localhost:5000/select_model", { model: selectedModel })
+      .then((response) => {
+        console.log("Model selection response:", response.data);
+      })
+      .catch((error) => {
+        console.error("Error submitting selected model:", error)
+      })
+
   }
 
   const handleClick = () => {
