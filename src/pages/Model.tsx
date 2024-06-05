@@ -16,6 +16,7 @@ function Model() {
   const [modelDetails, setModelDetails] = useState<ModelDetails | null>(null);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+  const [refreshCount, setRefreshCount] = useState(0);
 
 
   const showPrivate = () => {
@@ -67,17 +68,13 @@ function Model() {
       });
   };
 
-  // useEffect(() => {
-  //   handleSubmit();
-  //   showPublic();
-  // }, []);
-
   const handleSubmit = () => {
     console.log("Submit button clicked")
     setIsSubmitted(true);
 
     if (!selectedModel) {
       console.error("No model selected");
+      setError("No model selected")
       return;
     }
 
@@ -90,8 +87,8 @@ function Model() {
       })
       .catch((error) => {
         console.error("Error submitting selected model:", error)
+        setError("Error submitting selected model")
       })
-
   }
 
   const handleClick = () => {
@@ -100,10 +97,16 @@ function Model() {
   }
 
   useEffect(() => {
-    if (models.length > 0) {
       showPublic();
-    }
-  }, [models]);
+  });
+
+  // useEffect(() => {
+  //   if (models.length > 0 && refreshCount <2){
+  //     showPublic();
+  //     setRefreshCount(refreshCount + 1);
+  //   }
+    
+  // }, [models, refreshCount]);
 
   const showPublic = () => {
     setContent(
@@ -116,7 +119,7 @@ function Model() {
             // value={selectedModel}
           >
             <optgroup label="Choose a model">
-              <option disabled hidden selected>Select a model</option>
+              <option value=" " disabled hidden selected>Select a model</option>
               {models.map(model => (
                 <option key={model} value={model}>{model}</option>
               ))}

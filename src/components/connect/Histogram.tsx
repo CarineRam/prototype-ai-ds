@@ -26,7 +26,7 @@ const Histogram = () => {
     return (
         <div>
             <div>
-                {imageSrc && <img src={imageSrc} alt="Histogramme" />}
+                {imageSrc && <img src={imageSrc} alt="Histogram" />}
             </div>
         </div>
     );

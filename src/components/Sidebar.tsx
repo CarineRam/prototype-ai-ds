@@ -25,13 +25,13 @@ function Sidebar() {
                 <FaDatabase className="text-2xl" /> <p className='text-xl'>&nbsp;Dataset</p>
               </Link>
             </li>
-            <li>
+            {/* <li>
               <Link
                 className='pl-5 pt-5 pb-5 mb-5 flex'
                 to='/previewdataset'>
                 <CiViewTable className="text-2xl" /> <p className='text-xl'>&nbsp;Preview Dataset</p>
               </Link>
-            </li>
+            </li> */}
             <li>
               <Link 
                 className='pl-5 pt-5 pb-5 mb-5 flex'

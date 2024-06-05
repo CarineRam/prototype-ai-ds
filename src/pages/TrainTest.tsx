@@ -1,5 +1,6 @@
 import axios from 'axios';
 import React, { useState, ChangeEvent } from 'react';
+import Histogram from "../components/connect/Histogram"
 
 function TrainTest() {
   const [trainPercentage, setTrainPercentage] = useState<number>(0);
@@ -7,6 +8,7 @@ function TrainTest() {
   const [visualizationData, setvisualizationData] = useState(null);
   const [error, setError] = useState('');
   const [accuracy, setAccuracy] = useState<number | null>(null);
+  const [imageSrc, setImageSrc] = useState('');
 
   const handleTrainChange = (e: ChangeEvent<HTMLInputElement>) => {
     setTrainPercentage(e.target.valueAsNumber);
@@ -16,6 +18,7 @@ function TrainTest() {
   }
 
   const onSplitModel = async () => {
+    console.log("Split button pushed")
     if ((trainPercentage || 0) + (testPercentage || 0) !== 100) {
       setError('The sum of train and test percentages must be 100.');
       return;
@@ -37,13 +40,28 @@ function TrainTest() {
 
 
   const onTrainModel = () => {
+    console.log("Train button pushed")
     axios.post('http://localhost:5000/train_model', { trainPercentage })
       .then(response => {
         setAccuracy(response.data.accuracy);
         console.log('Model trained successfully:', response.data);
       })
       .catch(error => {
-        console.error('Error training model:', error);
+        // console.error('Error training model:', error);
+        console.error('Error training model:', error.response ? error.response.data : error.message);
+      });
+
+    axios.post('http://localhost:5000/generate_histogram', {}, {
+      responseType: 'blob'
+    })
+      .then(response => {
+        // const url = URL.createObjectURL(response.data);
+        const url = URL.createObjectURL(new Blob([response.data], { type: 'image/png' }));
+        setImageSrc(url);
+      })
+      .catch(error => {
+        // console.error('Error generating histogram:', error)
+        console.error('Error generating histogram:', error.response ? error.response.data : error.message);
       });
   }
 
@@ -51,7 +69,7 @@ function TrainTest() {
     <div className="pl-20 pt-20 pr-20 text-white">
       <h1 className="text-3xl mb-10"><strong>Train and Test</strong></h1>
 
-      <div className="flex gap-5 h-[60vh] text-slate-800">
+      <div className="flex gap-5 h-min-[60vh] text-slate-800">
         <div className="w-4/12 bg-slate-200 rounded-xl p-4">
           <h1 className="text-xl font-bold text-slate-800">Train</h1>
           <div className='text-lg flex h-10 mb-5 mt-5'>
@@ -83,12 +101,12 @@ function TrainTest() {
         </div>
         <div className="w-8/12 bg-slate-200 rounded-xl p-4">
           <h1 className="text-xl font-bold text-slate-800">Object Class Distribution</h1>
-          {visualizationData && (
+          {/* {visualizationData && ( */}
             <div>
-              <h2>Visualization</h2>
-              {/* Visualization component or logic goes here */}
+              {/* <h2>Visualization</h2> */}
+              {imageSrc && <img src={imageSrc} alt="Histogram" />}
             </div>
-          )}
+          {/* // )} */}
         </div>
 
       </div>
