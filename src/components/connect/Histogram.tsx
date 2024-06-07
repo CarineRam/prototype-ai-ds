@@ -1,26 +1,22 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
 const Histogram = () => {
     const [imageSrc, setImageSrc] = useState('');
 
-    // useEffect(() => {
-    //     fetch('http://localhost:5000/histogram')
-    //         .then(response => response.blob())
-    //         .then(blob => {
-    //             const url = URL.createObjectURL(blob);
-    //             setImageSrc(url);
-    //         })
-    //         .catch(error => console.error('Erreur:', error));
-    // }, []);
-
     useEffect(() => {
-        fetch('http://localhost:5000/generate_histogram')
-            .then(response => response.blob())
-            .then(blob => {
-                const url = URL.createObjectURL(blob);
+        axios.post('http://localhost:5000/generate_histogram', {}, {
+            responseType: 'blob'
+        })
+            .then(response => {
+                // const url = URL.createObjectURL(response.data);
+                const url = URL.createObjectURL(new Blob([response.data], { type: 'image/png' }));
                 setImageSrc(url);
             })
-            .catch(error => console.error('Error generating histogram:', error));
+            .catch(error => {
+                // console.error('Error generating histogram:', error)
+                console.error('Error generating histogram:', error.response ? error.response.data : error.message);
+            });
     }, []);
 
     return (
