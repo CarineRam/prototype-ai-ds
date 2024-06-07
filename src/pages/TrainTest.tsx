@@ -45,25 +45,27 @@ function TrainTest() {
       .then(response => {
         setAccuracy(response.data.accuracy);
         console.log('Model trained successfully:', response.data);
+
+        generateHistogramAndHeatmap();
       })
       .catch(error => {
-        // console.error('Error training model:', error);
         console.error('Error training model:', error.response ? error.response.data : error.message);
       });
 
+  }
+
+  const generateHistogramAndHeatmap = () => {
     axios.post('http://localhost:5000/generate_histogram', {}, {
       responseType: 'blob'
     })
       .then(response => {
-        // const url = URL.createObjectURL(response.data);
         const url = URL.createObjectURL(new Blob([response.data], { type: 'image/png' }));
         setImageSrc(url);
       })
       .catch(error => {
-        // console.error('Error generating histogram:', error)
         console.error('Error generating histogram:', error.response ? error.response.data : error.message);
       });
-  }
+}
 
   return (
     <div className="pl-20 pt-20 pr-20 text-white">
@@ -92,21 +94,15 @@ function TrainTest() {
           {accuracy && (
             <>
               <div>Model Accuracy: {accuracy}</div>
-              {/* <button
-                onClick={onGenerateHistogram}
-                className="mt-5 bg-slate-400 p-6 rounded-xl border border-slate-700 w-full text-xl text-slate-800"
-              >Train and Test dataset</button> */}
             </>
           )}
         </div>
         <div className="w-8/12 bg-slate-200 rounded-xl p-4">
-          <h1 className="text-xl font-bold text-slate-800">Object Class Distribution</h1>
-          {/* {visualizationData && ( */}
-            <div>
-              {/* <h2>Visualization</h2> */}
-              {imageSrc && <img src={imageSrc} alt="Histogram" />}
-            </div>
-          {/* // )} */}
+          <h1 className="text-xl font-bold text-slate-800">Confusion Matrix</h1>
+          
+          <div>
+            {imageSrc && <img src={imageSrc} alt="Histogram" />}
+          </div>
         </div>
 
       </div>

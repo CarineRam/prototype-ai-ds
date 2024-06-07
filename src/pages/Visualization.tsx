@@ -1,4 +1,6 @@
 import Histogram from "../components/connect/Histogram"
+import Heatmap from "../components/connect/Heatmap"
+import ResidualPlot from "../components/connect/ResidualPlot"
 
 function Visualization() {
   return (
@@ -8,14 +10,16 @@ function Visualization() {
 
         <div className="grid grid-cols-2 mt-10  gap-7 text-slate-800 ">
           <div className="bg-slate-200 border border-slate-500 rounded-xl p-3 h-min-[40vh]">
-            <h1 className="text-xl font-bold">Object Class Distribution</h1>
+            <h1 className="text-xl font-bold">Confusion Matrix</h1>
             <Histogram/>
           </div>
           <div className="bg-slate-200 border border-slate-500 rounded-xl p-3 h-min-[40vh]">
-            <h1 className="text-xl font-bold">Precision Recall</h1>
+            <h1 className="text-xl font-bold">Heatmap</h1>
+            <Heatmap/>
           </div>
           <div className="bg-slate-200 border border-slate-500 rounded-xl p-3 h-min-[40vh]">
-            <h1 className="text-xl font-bold">Confusion Matrix</h1>
+            <h1 className="text-xl font-bold">Residual Plot</h1>
+            <ResidualPlot/>
           </div>
         </div>
 
