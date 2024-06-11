@@ -108,8 +108,8 @@ function TrainTest() {
             </>
           )}
         </div>
-        <div className="w-8/12 bg-slate-200 rounded-xl p-4">
-          <h1 className="text-xl font-bold text-slate-800">Confusion Matrix</h1>
+        <div className="w-8/12 bg-slate-200 rounded-xl p-4 grid justify-center">
+          <h1 className="text-xl font-bold text-slate-800">Precision Recall</h1>
 
           <div>
             {imageSrc && <img src={imageSrc} alt="Histogram" />}
