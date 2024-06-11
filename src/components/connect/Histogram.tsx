@@ -4,7 +4,7 @@ import axios from 'axios';
 const Histogram = () => {
     const [imageSrc, setImageSrc] = useState('');
 
-    useEffect(() => {
+    // useEffect(() => {
         axios.post('http://localhost:5000/generate_histogram', {}, {
             responseType: 'blob'
         })
@@ -15,7 +15,7 @@ const Histogram = () => {
             .catch(error => {
                 console.error('Error generating histogram:', error.response ? error.response.data : error.message);
             });
-    }, []);
+    // }, []);
 
     return (
         <div>

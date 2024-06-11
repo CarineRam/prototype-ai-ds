@@ -4,7 +4,7 @@ import axios from 'axios';
 const Heatmap = () => {
     const [imageHmSrc, setImageHmSrc] = useState('');
 
-    useEffect(() => {
+    // useEffect(() => {
         axios.post('http://localhost:5000/generate_heatmap', {}, {
             responseType: 'blob'
         })
@@ -15,7 +15,7 @@ const Heatmap = () => {
             .catch(error => {
                 console.error('Error generating heatmap:', error.response ? error.response.data : error.message);
             });
-    }, []);
+    // }, []);
 
     return (
         <div>

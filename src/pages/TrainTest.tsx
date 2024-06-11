@@ -55,17 +55,28 @@ function TrainTest() {
   }
 
   const generateHistogramAndHeatmap = () => {
-    axios.post('http://localhost:5000/generate_histogram', {}, {
+    // axios.post('http://localhost:5000/generate_histogram', {}, {
+    //   responseType: 'blob'
+    // })
+    //   .then(response => {
+    //     const url = URL.createObjectURL(new Blob([response.data], { type: 'image/png' }));
+    //     setImageSrc(url);
+    //   })
+    //   .catch(error => {
+    //     console.error('Error generating histogram:', error.response ? error.response.data : error.message);
+    //   });
+
+    axios.post('http://localhost:5000/generate_precision_recall', {}, {
       responseType: 'blob'
     })
       .then(response => {
-        const url = URL.createObjectURL(new Blob([response.data], { type: 'image/png' }));
-        setImageSrc(url);
+        const urlRP = URL.createObjectURL(new Blob([response.data], { type: 'image/png' }));
+        setImageSrc(urlRP);
       })
       .catch(error => {
-        console.error('Error generating histogram:', error.response ? error.response.data : error.message);
+        console.error('Error generating residual plot:', error.response ? error.response.data : error.message);
       });
-}
+  }
 
   return (
     <div className="pl-20 pt-20 pr-20 text-white">
@@ -99,7 +110,7 @@ function TrainTest() {
         </div>
         <div className="w-8/12 bg-slate-200 rounded-xl p-4">
           <h1 className="text-xl font-bold text-slate-800">Confusion Matrix</h1>
-          
+
           <div>
             {imageSrc && <img src={imageSrc} alt="Histogram" />}
           </div>
