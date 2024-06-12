@@ -40,19 +40,17 @@ function Visualization() {
         <div className="grid grid-cols-2 mt-10  gap-7 text-slate-800 ">
           <div className="bg-slate-200 border border-slate-500 rounded-xl p-10 h-min-[40vh] grid justify-center">
             <h1 className="text-xl font-bold">Histogram</h1>
-            {histogramSrc && <img src={histogramSrc} alt="Histogram"/>}
+            {histogramSrc && <img src={histogramSrc} alt="Histogram" />}
           </div>
           <div className="bg-slate-200 border border-slate-500 rounded-xl p-10 h-min-[40vh] grid justify-center">
             <h1 className="text-xl font-bold">Heatmap</h1>
-            {heatmapSrc && <img src={heatmapSrc} alt="heatmap"/>}
+            {heatmapSrc && <img src={heatmapSrc} alt="heatmap" />}
           </div>
           <div className="bg-slate-200 border border-slate-500 rounded-xl p-10 h-min-[40vh] grid justify-center">
             <h1 className="text-xl font-bold">Precision Recall</h1>
-            {precisionRecallSrc && <img src={precisionRecallSrc} alt="Precision Recall"/>}
+            {precisionRecallSrc && <img src={precisionRecallSrc} alt="Precision Recall" />}
           </div>
         </div>
-
-
       </div>
     </>
   )
