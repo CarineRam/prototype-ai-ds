@@ -118,51 +118,55 @@ function Prompt() {
 
     console.log('MS: ', selectedModelMC)
 
-    const predictMaskResponse = await fetch('http://127.0.0.1:5000/magicalCodex/predict_mask', {
-      method: 'POST',
-      headers: {
-        'Content-Type':'application/json'
-      },
-      body: JSON.stringify({ input_text: inputContent })
-    });
-    const predictMaskData = await predictMaskResponse.json();
-    setBertOutputContent(predictMaskData.predicted_token);
-    setBertOutputContent(predictMaskData.predicted_text);
+    // const predictMaskResponse = await fetch('http://127.0.0.1:5000/magicalCodex/predict_mask', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type':'application/json'
+    //   },
+    //   body: JSON.stringify({ input_text: inputContent })
+    // });
+    // const predictMaskData = await predictMaskResponse.json();
+    // setBertOutputContent(predictMaskData.predicted_token);
+    // setBertOutputContent(predictMaskData.predicted_text);
 
-    const generateTextResponse = await fetch('http://127.0.0.1:5000/magicalCodex/generate_text', {
-      method: 'POST',
-      headers: {
-        'Content-type':'application/json'
-      },
-      body: JSON.stringify({ input_text: inputContent})
-    });
-    const generateTextData = await generateTextResponse.json()
-    setGpt2OutputContent(generateTextData.generated_text);
+    // const generateTextResponse = await fetch('http://127.0.0.1:5000/magicalCodex/generate_text', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-type':'application/json'
+    //   },
+    //   body: JSON.stringify({ input_text: inputContent})
+    // });
+    // const generateTextData = await generateTextResponse.json()
+    // setGpt2OutputContent(generateTextData.generated_text);
 
-    let apiUrl = '';//CHECK IF THE IF IS THE PROBLEM
-    if (selectedDatasetMC.includes('bert')) { 
-      apiUrl = 'http://127.0.0.1:5000/magicalCodex/predict_mask';
-      const predictMaskResponse = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ input_text: inputContent })
-      });
-      const predictMaskData = await predictMaskResponse.json();
-      setBertOutputContent(predictMaskData.predicted_token);
-      setOutputContent(predictMaskData.predicted_text);
-    } else if (selectedDatasetMC.includes('gpt2')) {
-      apiUrl = 'http://127.0.0.1:5000/magicalCodex/generate_text';
-      const generateTextResponse = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-type': 'application/json'
-        },
-        body: JSON.stringify({ input_text: inputContent })
-      });
-      const generateTextData = await generateTextResponse.json()
-      setOutputContent(generateTextData.generated_text);
+    try {
+      let apiUrl = '';
+      if (selectedModelMC.includes('berttokenizer')) {
+        apiUrl = 'http://127.0.0.1:5000/magicalCodex/predict_mask';
+        const predictMaskResponse = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ input_text: inputContent })
+        });
+        const predictMaskData = await predictMaskResponse.json();
+        setBertOutputContent(predictMaskData.predicted_token);
+        setOutputContent(predictMaskData.predicted_text);
+      } else if (selectedModelMC.includes('gpt2tokenizer')) {
+        apiUrl = 'http://127.0.0.1:5000/magicalCodex/generate_text';
+        const generateTextResponse = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-type': 'application/json'
+          },
+          body: JSON.stringify({ input_text: inputContent })
+        });
+        const generateTextData = await generateTextResponse.json()
+        setOutputContent(generateTextData.generated_text);
+      }
+    } catch (error) {
+        console.error("Error fetching the API", error);
     }
 
   };
@@ -395,7 +399,7 @@ function Prompt() {
               </div>
               <div>
                 <p>{gpt2OutputContent}</p>
-              </div> 
+              </div>
             </div>
           </div>
         </div>
