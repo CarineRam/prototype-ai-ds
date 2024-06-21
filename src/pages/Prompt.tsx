@@ -7,7 +7,7 @@ function Prompt() {
   const [content, setContent] = useState<ReactNode | null>(null);
   const [buttonPushed, setButtonPushed] = useState(1);
   const [temperature, setTemperature] = useState<number>(0);
-  const [tokens, setTokens] = useState<number>(0);
+  const [maxLength, setMaxLength] = useState<number>(65);
   const [modelsMC, setModelsMC] = useState<string[]>([]);
   const [selectedModelMC, setSelectedModelMC] = useState<string>("");
   const [selectedDatasetMC, setSelectedDatasetMC] = useState<string>('');
@@ -16,6 +16,7 @@ function Prompt() {
   const [bertOutputContent, setBertOutputContent] = useState(null);
   const [gpt2OutputContent, setGpt2OutputContent] = useState(null);
   const [outputContent, setOutputContent] = useState(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<string[]>([]);
 
   const handleTemperatureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTemperature = parseFloat(e.target.value);
@@ -34,17 +35,17 @@ function Prompt() {
 
   const handleTokensChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTokens = parseFloat(e.target.value);
-    setTokens(newTokens);
+    setMaxLength(newTokens);
   }
 
   const handleIncrementTokens = () => {
-    const newTokens = Math.min(4100, tokens + 25);
-    setTokens(parseFloat(newTokens.toFixed(2)));
+    const newTokens = Math.min(1100, maxLength + 25);
+    setMaxLength(parseFloat(newTokens.toFixed(2)));
   }
 
   const handleDecrementTokens = () => {
-    const newTokens = Math.max(0, tokens - 25);
-    setTokens(parseFloat(newTokens.toFixed(2)));
+    const newTokens = Math.max(0, maxLength - 25);
+    setMaxLength(parseFloat(newTokens.toFixed(2)));
   }
 
   const showContentEditor = () => {
@@ -95,20 +96,10 @@ function Prompt() {
     setSelectedDatasetMC(event.target.value)
   }
 
-  // const handleSubmit = (event: React.FormEvent) => {
-  //   event.preventDefault();
-
-  //   axios.post('http://localhost:5000/magicalCodex/process_dataset', {
-  //     model_MC: selectedModelMC
-  //   })
-  //   .then(response => {
-  //     setInputContent(response.data.input)
-  //     setOutputContent(response.data.output)
-  //   })
-  //   .catch(error => {
-  //     console.error('Error processing dataset:', error);
-  //   });
-  // };
+  const handleTemplateChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    const template = event.target.value;
+    setSelectedTemplate(event.target.value);
+  };
 
   const handlePredictAndGenerate = async () => {
     if (!selectedModelMC) {
@@ -116,57 +107,48 @@ function Prompt() {
       return;
     }
 
+    console.log('Tplt:', selectedTemplate)
     console.log('MS: ', selectedModelMC)
 
-    // const predictMaskResponse = await fetch('http://127.0.0.1:5000/magicalCodex/predict_mask', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type':'application/json'
-    //   },
-    //   body: JSON.stringify({ input_text: inputContent })
-    // });
-    // const predictMaskData = await predictMaskResponse.json();
-    // setBertOutputContent(predictMaskData.predicted_token);
-    // setBertOutputContent(predictMaskData.predicted_text);
-
-    // const generateTextResponse = await fetch('http://127.0.0.1:5000/magicalCodex/generate_text', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-type':'application/json'
-    //   },
-    //   body: JSON.stringify({ input_text: inputContent})
-    // });
-    // const generateTextData = await generateTextResponse.json()
-    // setGpt2OutputContent(generateTextData.generated_text);
-
-    try {
-      let apiUrl = '';
-      if (selectedModelMC.includes('berttokenizer')) {
-        apiUrl = 'http://127.0.0.1:5000/magicalCodex/predict_mask';
-        const predictMaskResponse = await fetch(apiUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ input_text: inputContent })
-        });
-        const predictMaskData = await predictMaskResponse.json();
-        setBertOutputContent(predictMaskData.predicted_token);
-        setOutputContent(predictMaskData.predicted_text);
-      } else if (selectedModelMC.includes('gpt2tokenizer')) {
-        apiUrl = 'http://127.0.0.1:5000/magicalCodex/generate_text';
-        const generateTextResponse = await fetch(apiUrl, {
-          method: 'POST',
-          headers: {
-            'Content-type': 'application/json'
-          },
-          body: JSON.stringify({ input_text: inputContent })
-        });
-        const generateTextData = await generateTextResponse.json()
-        setOutputContent(generateTextData.generated_text);
-      }
-    } catch (error) {
+    if (selectedTemplate.includes('autocomplete')) {
+      try {
+        let apiUrl = '';
+        if (selectedModelMC.includes('berttokenizer')) {
+          apiUrl = 'http://127.0.0.1:5000/magicalCodex/predict_mask';
+          const predictMaskResponse = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ input_text: inputContent, max_length: maxLength })
+          });
+          const predictMaskData = await predictMaskResponse.json();
+          setBertOutputContent(predictMaskData.predicted_token);
+          setOutputContent(predictMaskData.predicted_text);
+        } else if (selectedModelMC.includes('gpt2tokenizer')) {
+          apiUrl = 'http://127.0.0.1:5000/magicalCodex/generate_text';
+          const generateTextResponse = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-type': 'application/json'
+            },
+            body: JSON.stringify({ input_text: inputContent, max_length: maxLength })
+          });
+          const generateTextData = await generateTextResponse.json()
+          setOutputContent(generateTextData.generated_text);
+        }
+      } catch (error) {
         console.error("Error fetching the API", error);
+      }
+    } else if (selectedTemplate.includes('genericClassification')){
+      console.log('Generic Classification Template selected')
+    } else if (selectedTemplate.includes('namedEntityExtraction')){
+      console.log('Named Entity Extraction Template selected')
+    } else if (selectedTemplate.includes('oneSentenceSummarization')){
+      console.log('One Sentence Summerization Template selected')
+    } else {
+      alert("Please select a template first")
+      return;
     }
 
   };
@@ -216,13 +198,18 @@ function Prompt() {
             <div>
               <p className="mb-3">Template</p>
 
-              <select className='mb-3 w-full h-12 rounded-md border-slate-800 bg-slate-300' name="" id="">
+              <select
+                className='mb-3 w-full h-12 rounded-md border-slate-800 bg-slate-300'
+                name=""
+                id=""
+                onChange={handleTemplateChange}
+              >
                 <optgroup label="Example Prompts">
                   <option disabled hidden selected>Start from Template</option>
-                  <option value="">Generic Classification</option>
-                  <option value="">Autocomplete</option>
-                  <option value="">Named Entity Extraction</option>
-                  <option value="">One-Sentence Summarization</option>
+                  <option value="genericClassification">Generic Classification</option>
+                  <option value="autocomplete">Autocomplete</option>
+                  <option value="namedEntityExtraction">Named Entity Extraction</option>
+                  <option value="oneSentenceSummarization">One-Sentence Summarization</option>
                 </optgroup>
               </select>
             </div>
@@ -315,7 +302,7 @@ function Prompt() {
                   <button onClick={handleDecrementTokens}>-&nbsp; </button>
                   <input
                     type="text"
-                    value={tokens}
+                    value={maxLength}
                     // onChange={handleInputChangeTokens}
                     className="input w-20 border border-slate-600 rounded-md pl-2 pr-2"
                   />
@@ -328,9 +315,9 @@ function Prompt() {
                   className=" h-5 bg-slate-600 rounded-full w-full top-0 -mt-3 left-0"
                   type='range'
                   min={0}
-                  max={4100}
+                  max={1100}
                   step={25}
-                  value={tokens}
+                  value={maxLength}
                   onChange={handleTokensChange}
                 ></input>
               </div>
