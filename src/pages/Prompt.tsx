@@ -1,12 +1,21 @@
 import { FaUpload } from "react-icons/fa6";
-import { useState, useEffect, ReactNode } from 'react'
+import { useState, useEffect, ReactNode, ChangeEvent } from 'react'
 import { LuRefreshCcw } from "react-icons/lu";
+import axios from "axios";
 
 function Prompt() {
   const [content, setContent] = useState<ReactNode | null>(null);
   const [buttonPushed, setButtonPushed] = useState(1);
   const [temperature, setTemperature] = useState<number>(0);
   const [tokens, setTokens] = useState<number>(0);
+  const [modelsMC, setModelsMC] = useState<string[]>([]);
+  const [selectedModelMC, setSelectedModelMC] = useState<string>("");
+  const [selectedDatasetMC, setSelectedDatasetMC] = useState<string>('');
+  const [datasetsMC, setDatasetsMC] = useState<string[]>([]);
+  const [inputContent, setInputContent] = useState('');
+  const [bertOutputContent, setBertOutputContent] = useState(null);
+  const [gpt2OutputContent, setGpt2OutputContent] = useState(null);
+  const [outputContent, setOutputContent] = useState(null);
 
   const handleTemperatureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTemperature = parseFloat(e.target.value);
@@ -53,6 +62,115 @@ function Prompt() {
   useEffect(() => {
     showContentEditor();
   }, []);
+
+  useEffect(() => {
+    axios.get('http://localhost:5000/magicalCodex/models_MC')
+      .then(response => {
+        setModelsMC(response.data.models_MC)
+        console.log("setModelsMC", response.data.models_MC)
+      })
+      .catch(error => {
+        console.error('Error fetching models of MC:', error)
+      });
+
+    axios.get('http://localhost:5000/magicalCodex/datasets_MC')
+      .then(response => {
+        setDatasetsMC(response.data.datasetsMC);
+        console.log("datasets MC", response.data.datasetsMC)
+      })
+      .catch(error => {
+        console.error('Error fetching datasets:', error)
+      })
+  }, [])
+
+  console.log("Rendering with datasetsMC", datasetsMC);
+
+  const handleModelClickMC = (event: ChangeEvent<HTMLSelectElement>) => {
+    console.log("Model MC selected:", event.target.value)
+    setSelectedModelMC(event.target.value)
+  }
+
+  const handleDatasetChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    console.log('Dataset MC selected:', event.target.value)
+    setSelectedDatasetMC(event.target.value)
+  }
+
+  // const handleSubmit = (event: React.FormEvent) => {
+  //   event.preventDefault();
+
+  //   axios.post('http://localhost:5000/magicalCodex/process_dataset', {
+  //     model_MC: selectedModelMC
+  //   })
+  //   .then(response => {
+  //     setInputContent(response.data.input)
+  //     setOutputContent(response.data.output)
+  //   })
+  //   .catch(error => {
+  //     console.error('Error processing dataset:', error);
+  //   });
+  // };
+
+  const handlePredictAndGenerate = async () => {
+    if (!selectedModelMC) {
+      alert("Please select a model first")
+      return;
+    }
+
+    console.log('MS: ', selectedModelMC)
+
+    const predictMaskResponse = await fetch('http://127.0.0.1:5000/magicalCodex/predict_mask', {
+      method: 'POST',
+      headers: {
+        'Content-Type':'application/json'
+      },
+      body: JSON.stringify({ input_text: inputContent })
+    });
+    const predictMaskData = await predictMaskResponse.json();
+    setBertOutputContent(predictMaskData.predicted_token);
+    setBertOutputContent(predictMaskData.predicted_text);
+
+    const generateTextResponse = await fetch('http://127.0.0.1:5000/magicalCodex/generate_text', {
+      method: 'POST',
+      headers: {
+        'Content-type':'application/json'
+      },
+      body: JSON.stringify({ input_text: inputContent})
+    });
+    const generateTextData = await generateTextResponse.json()
+    setGpt2OutputContent(generateTextData.generated_text);
+
+    let apiUrl = '';//CHECK IF THE IF IS THE PROBLEM
+    if (selectedDatasetMC.includes('bert')) { 
+      apiUrl = 'http://127.0.0.1:5000/magicalCodex/predict_mask';
+      const predictMaskResponse = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ input_text: inputContent })
+      });
+      const predictMaskData = await predictMaskResponse.json();
+      setBertOutputContent(predictMaskData.predicted_token);
+      setOutputContent(predictMaskData.predicted_text);
+    } else if (selectedDatasetMC.includes('gpt2')) {
+      apiUrl = 'http://127.0.0.1:5000/magicalCodex/generate_text';
+      const generateTextResponse = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json'
+        },
+        body: JSON.stringify({ input_text: inputContent })
+      });
+      const generateTextData = await generateTextResponse.json()
+      setOutputContent(generateTextData.generated_text);
+    }
+
+  };
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setInputContent(e.target.value);
+    console.log(e.target.value)
+  };
 
   return (
     <>
@@ -109,13 +227,17 @@ function Prompt() {
               <p className="mb-3">Dataset</p>
 
               <div className="mb-3">
-                <select className="w-full h-12 rounded-md border-slate-800 bg-slate-300" name="" id="">
+                <select
+                  className="w-full h-12 rounded-md border-slate-800 bg-slate-300"
+                  name=""
+                  id=""
+                  onChange={handleDatasetChange}
+                >
                   <optgroup label="Your Datasets">
-                    <option disabled hidden selected>Select Dataset</option>
-                    <option value="">None</option>
-                    <option value="" className="p-5">
-                      <div> <FaUpload />Upload New Dataset</div>
-                    </option>
+                    <option disabled hidden selected>Select a dataset</option>
+                    {datasetsMC.map(datasetsMC => (
+                      <option key={datasetsMC} value={datasetsMC}>{datasetsMC}</option>
+                    ))}
                   </optgroup>
                 </select>
               </div>
@@ -132,7 +254,7 @@ function Prompt() {
             <div className="mb-3">
               <p className="mb-3">Output Taxonomy</p>
 
-              <button className="h-12 pl-4 pr-4 border rounded-xl border-slate-500 hover:bg-slate-400">
+              <button className="min-h-12 pl-4 pr-4 border rounded-xl border-slate-500 hover:bg-slate-400">
                 Add Output Taxonomy
               </button>
             </div>
@@ -140,12 +262,18 @@ function Prompt() {
             <div className="mb-3">
               <p className="mb-3">Model</p>
 
-              <select name="" id="" className="w-full h-12 rounded-md border-slate-800 bg-slate-300">
-                <option disabled hidden selected>Select the Model</option>
-                <option value="">GPT-3 Text Davinci 003</option>
-                <option value="">GPT-3.5 Turbo</option>
-                <option value="">GPT-4</option>
-                <option value="">FLAN T5-XXL</option>
+              <select
+                name=""
+                id=""
+                className="w-full h-12 rounded-md border-slate-800 bg-slate-300"
+                onChange={handleModelClickMC}
+              >
+                <optgroup label="Your Models">
+                  <option disabled hidden selected>Select the Model</option>
+                  {modelsMC.map(modelsMC => (
+                    <option key={modelsMC} value={modelsMC}>{modelsMC}</option>
+                  ))}
+                </optgroup>
               </select>
             </div>
 
@@ -157,7 +285,6 @@ function Prompt() {
                   <input
                     type="text"
                     value={temperature}
-                    // onChange={handleInputChange}
                     className="input w-20 border border-slate-600 rounded-md pl-2 pr-2"
                   />
                   <button onClick={handleIncrement}> &nbsp;+</button>
@@ -223,7 +350,11 @@ function Prompt() {
               <button className="text-slate-200 ">
                 View Settings
               </button>
-              <button className="text-slate-200 border border-slate-500 pl-5 pr-5 pt-2 pb-2 rounded-lg flex items-center hover:bg-slate-500">
+              <button
+                className="text-slate-200 border border-slate-500 pl-5 pr-5 pt-2 pb-2 rounded-lg flex items-center hover:bg-slate-500"
+                // type='submit'
+                onClick={handlePredictAndGenerate}
+              >
                 <LuRefreshCcw /> &nbsp;Generate Output
               </button>
             </div>
@@ -241,7 +372,14 @@ function Prompt() {
                 Input
               </div>
               <div className="w-8/12 p-3">
-                <input className='w-full h-[60px] p-3' placeholder="Enter a custom input" />
+                {/* {inputContent && ( */}
+                <input
+                  className='w-full h-[60px] p-3' placeholder="Enter a custom input"
+                  value={inputContent}
+                  onChange={handleInputChange}
+                />
+                {/* <pre>{inputContent}</pre>
+                )}  */}
               </div>
             </div>
           </div>
@@ -250,8 +388,14 @@ function Prompt() {
             <div className="bg-slate-300  p-3 rounded-tr-xl border-b border-slate-600">
               New Variant
             </div>
-            <div className="bg-slate-100 p-3 border-slate-600 ">
-
+            <div className="bg-slate-100 p-3 border-slate-600 rounded-br-xl">
+              <p>{outputContent}</p>
+              <div>
+                <p>{bertOutputContent}</p>
+              </div>
+              <div>
+                <p>{gpt2OutputContent}</p>
+              </div> 
             </div>
           </div>
         </div>
