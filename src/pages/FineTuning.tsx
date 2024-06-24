@@ -1,10 +1,42 @@
 import { useState, useEffect, ReactNode } from 'react'
+import axios from 'axios';
 
 
 function FineTuning() {
   const [content, setContent] = useState<ReactNode | null>(null);
   const [buttonPushed, setButtonPushed] = useState(1);
+  const [modelsMC, setModelsMC] = useState<string[]>([])
+  const [datasetsMC, setDatasetsMC] = useState<string[]>([])
 
+  useEffect(() => {
+    axios.get('http://localhost:5000/magicalCodex/models_MC')
+      .then(response => {
+        setModelsMC(response.data.models_MC)
+        console.log("setModelsMC", response.data.models_MC)
+      })
+      .catch(error => {
+        console.error('Error fetching models of MC:', error)
+      });
+
+    axios.get('http://localhost:5000/magicalCodex/datasets_MC')
+      .then(response => {
+        setDatasetsMC(response.data.datasetsMC);
+        console.log("datasets MC", response.data.datasetsMC)
+      })
+      .catch(error => {
+        console.error('Error fetching datasets:', error)
+      })
+  }, [])
+
+  const handleModelClickMC = (event: ChangeEvent<HTMLSelectElement>) => {
+    console.log("Model MC selected:", event.target.value)
+    setSelectedModelMC(event.target.value)
+  }
+
+  const handleDatasetChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    console.log('Dataset MC selected:', event.target.value)
+    setSelectedDatasetMC(event.target.value)
+  }
 
   const showContentEditor = () => {
     setContent(
@@ -12,28 +44,38 @@ function FineTuning() {
         <div className="w-full flex gap-5 bg-slate-200 p-5 rounded-xl text-slate-800">
           <div>
             <p className="mb-3"><strong>Fine Tuned Model Name</strong></p>
-            <input className="h-12 w-64 rounded-xl border border-slate-800" type="text" />
+            <input className="h-12 w-64 p-5 rounded-lg border border-slate-800" type="text" />
           </div>
           <div>
             <p className="mb-3"><strong>Base Model</strong></p>
-            <select name="" id="" className="w-64 h-12 rounded-md border border-slate-800 bg-white">
-              <option disabled hidden selected>Select the Model</option>
-              <option value="">GPT-3 Text Davinci 003</option>
-              <option value="">GPT-3.5 Turbo</option>
-              <option value="">GPT-4</option>
-              <option value="">FLAN T5-XXL</option>
+            <select
+              name=""
+              id=""
+              className="w-64 h-12 rounded-md border border-slate-800 bg-white"
+              onChange={handleModelClickMC}
+            >
+              <optgroup label="Your Models">
+                <option disabled hidden selected>Select the Model</option>
+                {modelsMC.map(modelsMC => (
+                  <option key={modelsMC} value={modelsMC}>{modelsMC}</option>
+                ))}
+              </optgroup>
             </select>
           </div>
           <div>
-          <p className="mb-3"><strong>Train Dataset</strong></p>
-            <select name="" id="" className="w-64 h-12 rounded-md border border-slate-800 bg-white">
-            <optgroup label="Your Datasets">
-              <option disabled hidden selected>Select Dataset</option>
-              <option value="">GPT-3 Text Davinci 003</option>
-              <option value="">GPT-3.5 Turbo</option>
-              <option value="">GPT-4</option>
-              <option value="">FLAN T5-XXL</option>
-            </optgroup>
+            <p className="mb-3"><strong>Train Dataset</strong></p>
+            <select
+              className="w-64 h-12 rounded-md border border-slate-800 bg-white"
+              name=""
+              id=""
+              onChange={handleDatasetChange}
+            >
+              <optgroup label="Your Datasets">
+                <option disabled hidden selected>Select a dataset</option>
+                {datasetsMC.map(datasetsMC => (
+                  <option key={datasetsMC} value={datasetsMC}>{datasetsMC}</option>
+                ))}
+              </optgroup>
             </select>
           </div>
         </div>

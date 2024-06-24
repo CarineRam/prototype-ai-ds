@@ -363,14 +363,11 @@ function Prompt() {
                 Input
               </div>
               <div className="w-8/12 p-3">
-                {/* {inputContent && ( */}
                 <input
                   className='w-full h-[60px] p-3' placeholder="Enter a custom input"
                   value={inputContent}
                   onChange={handleInputChange}
                 />
-                {/* <pre>{inputContent}</pre>
-                )}  */}
               </div>
             </div>
           </div>
