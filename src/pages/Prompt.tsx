@@ -97,7 +97,6 @@ function Prompt() {
   }
 
   const handleTemplateChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const template = event.target.value;
     setSelectedTemplate(event.target.value);
   };
 
@@ -302,8 +301,7 @@ function Prompt() {
                   <button onClick={handleDecrementTokens}>-&nbsp; </button>
                   <input
                     type="text"
-                    value={maxLength}
-                    // onChange={handleInputChangeTokens}
+                    value={maxLength}                    
                     className="input w-20 border border-slate-600 rounded-md pl-2 pr-2"
                   />
                   <button onClick={handleIncrementTokens}> &nbsp;+</button>
@@ -343,7 +341,6 @@ function Prompt() {
               </button>
               <button
                 className="text-slate-200 border border-slate-500 pl-5 pr-5 pt-2 pb-2 rounded-lg flex items-center hover:bg-slate-500"
-                // type='submit'
                 onClick={handlePredictAndGenerate}
               >
                 <LuRefreshCcw /> &nbsp;Generate Output

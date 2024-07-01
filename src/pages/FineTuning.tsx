@@ -1,12 +1,20 @@
-import { useState, useEffect, ReactNode } from 'react'
+import { useState, useEffect, ReactNode, ChangeEvent } from 'react'
 import axios from 'axios';
 
 
 function FineTuning() {
   const [content, setContent] = useState<ReactNode | null>(null);
   const [buttonPushed, setButtonPushed] = useState(1);
-  const [modelsMC, setModelsMC] = useState<string[]>([])
-  const [datasetsMC, setDatasetsMC] = useState<string[]>([])
+  const [modelsMC, setModelsMC] = useState<string[]>([]);
+  const [datasetsMC, setDatasetsMC] = useState<string[]>([]);
+  const [selectedModelMC, setSelectedModelMC] = useState<string>("");
+  const [selectedDatasetMC, setSelectedDatasetMC] = useState<string>('');
+  const [inputText, setInputText] = useState('');
+  const [outputText, setOutputText] = useState('');
+
+  useEffect(()=> {
+    showContentEditor();
+  })
 
   useEffect(() => {
     axios.get('http://localhost:5000/magicalCodex/models_MC')
@@ -36,6 +44,41 @@ function FineTuning() {
   const handleDatasetChange = (event: ChangeEvent<HTMLSelectElement>) => {
     console.log('Dataset MC selected:', event.target.value)
     setSelectedDatasetMC(event.target.value)
+  }
+
+  const handleTestAndTrain = async () => {
+    if (!selectedDatasetMC && !selectedModelMC) {
+      alert("Make sure you choose a model and a dataset!");
+      return;
+    }
+
+    console.log("dataset chosen:", selectedDatasetMC)
+    console.log("model chosen:", selectedModelMC)
+
+    const generateTextFineTuning = await fetch('http://127.0.0.1:5000/magicalCodex/dgenerate_text', {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        prompt_text: inputText,
+        model_name: selectedModelMC,
+        dataset_name: selectedDatasetMC,
+      })
+    });
+
+    if (!generateTextFineTuning.ok) {
+      throw new Error('HTTP error! status: ${response.status}');
+    }
+
+    const data = await generateTextFineTuning.json();
+    setOutputText(data.generated_text);
+    console.log("Generated text:", data.generate_text);
+  }
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setInputText(e.target.value);
+    console.log(e.target.value)
   }
 
   const showContentEditor = () => {
@@ -114,6 +157,15 @@ function FineTuning() {
               <input type="text" className="h-12 w-full border border-slate-600 rounded-md pl-2 pr-2" />
             </div>
 
+            <div className="mb-3">
+
+
+              <button
+                className="h-12 w-full bg-slate-600 text-white border border-slate-600 rounded-md pl-2 pr-2"
+                onClick={handleTestAndTrain}
+              >Train</button>
+            </div>
+
 
           </div>
         </div>
@@ -128,7 +180,12 @@ function FineTuning() {
                 Input
               </div>
               <div className="w-8/12 p-3">
-                <input className='w-full h-[60px] p-3' placeholder="Enter a custom input" />
+                <input
+                  className='w-full h-[60px] p-3'
+                  placeholder="Enter a custom input"
+                  value={inputText}
+                  onChange={handleInputChange}
+                />
               </div>
             </div>
           </div>
@@ -138,7 +195,11 @@ function FineTuning() {
               Input Prompt
             </div>
             <div className="bg-slate-100 p-3  border-slate-600 ">
-
+              {outputText && (
+                <div className="">
+                  <p>{outputText}</p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -151,7 +212,6 @@ function FineTuning() {
             </div>
           </div>
         </div>
-
       </div>
     )
     setButtonPushed(1);
