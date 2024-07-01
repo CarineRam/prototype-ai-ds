@@ -1,5 +1,6 @@
 import { useState, useEffect, ReactNode, ChangeEvent } from 'react'
 import axios from 'axios';
+import { LuRefreshCcw } from "react-icons/lu";
 
 
 function FineTuning() {
@@ -11,10 +12,11 @@ function FineTuning() {
   const [selectedDatasetMC, setSelectedDatasetMC] = useState<string>('');
   const [inputText, setInputText] = useState('');
   const [outputText, setOutputText] = useState('');
+  const [epoch, setEpoch] = useState<number>(null);
 
-  useEffect(()=> {
-    showContentEditor();
-  })
+  // useEffect(() => {
+  //   showContentEditor();
+  // });
 
   useEffect(() => {
     axios.get('http://localhost:5000/magicalCodex/models_MC')
@@ -46,15 +48,44 @@ function FineTuning() {
     setSelectedDatasetMC(event.target.value)
   }
 
+  const handleEpochChange = (event: ChangeEvent<HTMLInputElement>) => {
+    console.log('Epochs:', event.target.value)
+    const newEpoch = parseFloat(event.target.value);
+    setEpoch(newEpoch)
+  }
+
   const handleTestAndTrain = async () => {
     if (!selectedDatasetMC && !selectedModelMC) {
       alert("Make sure you choose a model and a dataset!");
       return;
     }
 
+    if (!epoch) {
+      alert("Please choose a number of Epochs!");
+      return;
+    }
+
     console.log("dataset chosen:", selectedDatasetMC)
     console.log("model chosen:", selectedModelMC)
 
+    const trainDatasetFineTuning = await fetch('http://127.0.0.1:5000/magicalCodex/dtrain_dataset', {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        model_name: selectedModelMC,
+        dataset_name: selectedDatasetMC,
+        epoch: epoch,
+      })
+    });
+
+    if (!trainDatasetFineTuning.ok) {
+      throw new Error('HTTP error! status: ${response.status}');
+    }
+  }
+
+  const handleGenerateText = async () => {
     const generateTextFineTuning = await fetch('http://127.0.0.1:5000/magicalCodex/dgenerate_text', {
       method: 'POST',
       headers: {
@@ -62,18 +93,14 @@ function FineTuning() {
       },
       body: JSON.stringify({
         prompt_text: inputText,
-        model_name: selectedModelMC,
-        dataset_name: selectedDatasetMC,
       })
     });
+    const generatedText = await generateTextFineTuning.json()
+    setOutputText(generatedText.generated_text)
 
     if (!generateTextFineTuning.ok) {
-      throw new Error('HTTP error! status: ${response.status}');
+      throw new Error('HTTP error! Status: ${response.status}')
     }
-
-    const data = await generateTextFineTuning.json();
-    setOutputText(data.generated_text);
-    console.log("Generated text:", data.generate_text);
   }
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -148,7 +175,12 @@ function FineTuning() {
             <div className="mb-3">
               <p className="mb-3">Epochs</p>
 
-              <input type="text" className="h-12 w-full border border-slate-600 rounded-md pl-2 pr-2" />
+              <input 
+              type="text" 
+              className="h-12 w-full border border-slate-600 rounded-md pl-2 pr-2"
+              value={epoch}
+              onChange={handleEpochChange}
+              />
             </div>
 
             <div className="mb-3">
@@ -169,6 +201,24 @@ function FineTuning() {
 
           </div>
         </div>
+
+        <div className="mt-10 right-0 inset-0">
+          <div className="flex justify-between">
+            <div></div>
+            <div className="flex gap-10">
+              <button className="text-slate-200 ">
+                View Settings
+              </button>
+              <button
+                className="text-slate-200 border border-slate-500 pl-5 pr-5 pt-2 pb-2 rounded-lg flex items-center hover:bg-slate-500"
+                onClick={handleGenerateText}
+              >
+                <LuRefreshCcw /> &nbsp;Generate Output
+              </button>
+            </div>
+          </div>
+        </div>
+
 
         <div className="flex mt-10 mb-10 text-slate-800 border border-slate-600 rounded-xl bg-slate-100">
           <div className="w-6/12">
