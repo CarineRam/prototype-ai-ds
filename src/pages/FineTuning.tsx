@@ -12,31 +12,51 @@ function FineTuning() {
   const [selectedDatasetMC, setSelectedDatasetMC] = useState<string>('');
   const [inputText, setInputText] = useState('');
   const [outputText, setOutputText] = useState('');
-  const [epoch, setEpoch] = useState<number>(null);
-
-  // useEffect(() => {
-  //   showContentEditor();
-  // });
+  const [epoch, setEpoch] = useState<number>('');
 
   useEffect(() => {
-    axios.get('http://localhost:5000/magicalCodex/models_MC')
-      .then(response => {
-        setModelsMC(response.data.models_MC)
-        console.log("setModelsMC", response.data.models_MC)
-      })
-      .catch(error => {
-        console.error('Error fetching models of MC:', error)
-      });
+     axios.get('http://localhost:5000/magicalCodex/models_MC')
+        .then(response => {
+          setModelsMC(response.data.models_MC)
+          console.log("setModelsMC", response.data.models_MC)
+        })
+        .catch(error => {
+          console.error('Error fetching models of MC:', error)
+        });
 
-    axios.get('http://localhost:5000/magicalCodex/datasets_MC')
-      .then(response => {
-        setDatasetsMC(response.data.datasetsMC);
-        console.log("datasets MC", response.data.datasetsMC)
-      })
-      .catch(error => {
-        console.error('Error fetching datasets:', error)
-      })
+      axios.get('http://localhost:5000/magicalCodex/datasets_MC')
+        .then(response => {
+          setDatasetsMC(response.data.datasetsMC);
+          console.log("datasets MC", response.data.datasetsMC)
+        })
+        .catch(error => {
+          console.error('Error fetching datasets:', error)
+        })
   }, [])
+
+  useEffect(() => {
+    if (modelsMC.length > 0 && datasetsMC.length > 0) {
+      showContentEditor();
+    }
+  }, [modelsMC, datasetsMC]);
+
+  useEffect(() => {
+    if (epoch >= 0) {
+      showContentEditor();
+    }
+  }, [epoch]);
+
+  useEffect(() => {
+    if (inputText.length >= 0) {
+      showContentEditor();
+    }
+  }, [inputText])
+
+  useEffect(() => {
+    if(outputText) {
+      showContentEditor();
+    }
+  }, [outputText])
 
   const handleModelClickMC = (event: ChangeEvent<HTMLSelectElement>) => {
     console.log("Model MC selected:", event.target.value)
@@ -68,39 +88,78 @@ function FineTuning() {
     console.log("dataset chosen:", selectedDatasetMC)
     console.log("model chosen:", selectedModelMC)
 
-    const trainDatasetFineTuning = await fetch('http://127.0.0.1:5000/magicalCodex/dtrain_dataset', {
-      method: 'POST',
-      headers: {
-        'Content-type': 'application/json'
-      },
-      body: JSON.stringify({
-        model_name: selectedModelMC,
-        dataset_name: selectedDatasetMC,
-        epoch: epoch,
-      })
-    });
+    // const trainDatasetFineTuning = async () => {
+    if (selectedModelMC.includes('gpt2tokenizer')) {
+      const trainGpt2 = await fetch('http://127.0.0.1:5000/magicalCodex/dtrain_gpt2', {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          model_name: selectedModelMC,
+          dataset_name: selectedDatasetMC,
+          epoch: epoch,
+        })
+      });
 
-    if (!trainDatasetFineTuning.ok) {
-      throw new Error('HTTP error! status: ${response.status}');
+      const trainGpt2result = await trainGpt2.json();
+      console.log('Training Gpt2 result:', trainGpt2result)
+
+    } else if (selectedModelMC.includes('berttokenizer')) {
+      const trainBert = await fetch('http://127.0.0.1:5000/magicalCodex/dtrain_bert', {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          model_name: selectedModelMC,
+          dataset_name: selectedDatasetMC,
+          epoch: epoch,
+        })
+      });
+      const trainBertresult = await trainBert.json();
+      console.log('Training Bert result:', trainBertresult)
     }
   }
 
   const handleGenerateText = async () => {
-    const generateTextFineTuning = await fetch('http://127.0.0.1:5000/magicalCodex/dgenerate_text', {
-      method: 'POST',
-      headers: {
-        'Content-type': 'application/json'
-      },
-      body: JSON.stringify({
-        prompt_text: inputText,
-      })
-    });
-    const generatedText = await generateTextFineTuning.json()
-    setOutputText(generatedText.generated_text)
+    if (selectedModelMC.includes('gpt2tokenizer')) {
+      console.log('GPT2 Tokenizer selected')
+      const generateTextFineTuning = await fetch('http://127.0.0.1:5000/magicalCodex/dgenerate_text', {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          prompt_text: inputText,
+        })
+      });
+      const generatedText = await generateTextFineTuning.json()
+      setOutputText(generatedText.generated_text)
 
-    if (!generateTextFineTuning.ok) {
-      throw new Error('HTTP error! Status: ${response.status}')
+      if (!generateTextFineTuning.ok) {
+        throw new Error('HTTP error! Status: ${response.status}')
+      }
+
+    } else if (selectedModelMC.includes('berttokenizer')) {
+      console.log('Bert Tokenizer selected')
+      const predictWordFineTuning = await fetch('http://127.0.0.1:5000/magicalCodex/dpredict_word', {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          prompt_text: inputText,
+        })
+      });
+      const predictWord = await predictWordFineTuning.json()
+      setOutputText(predictWord.generated_text)
+
+      if (!predictWordFineTuning.ok) {
+        throw new Error('HTTP error! Status: ${response.status}') //TEST BERT
+      }
     }
+    
   }
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -123,11 +182,12 @@ function FineTuning() {
               id=""
               className="w-64 h-12 rounded-md border border-slate-800 bg-white"
               onChange={handleModelClickMC}
+              
             >
               <optgroup label="Your Models">
-                <option disabled hidden selected>Select the Model</option>
-                {modelsMC.map(modelsMC => (
-                  <option key={modelsMC} value={modelsMC}>{modelsMC}</option>
+                <option disabled hidden selected value="">Select the Model</option>
+                {modelsMC.map((models, key) => (
+                  <option key={key} value={models}>{models}</option>
                 ))}
               </optgroup>
             </select>
@@ -175,11 +235,11 @@ function FineTuning() {
             <div className="mb-3">
               <p className="mb-3">Epochs</p>
 
-              <input 
-              type="text" 
-              className="h-12 w-full border border-slate-600 rounded-md pl-2 pr-2"
-              value={epoch}
-              onChange={handleEpochChange}
+              <input
+                type="text"
+                className="h-12 w-full border border-slate-600 rounded-md pl-2 pr-2"
+                value={epoch}
+                onChange={handleEpochChange}
               />
             </div>
 
@@ -242,7 +302,7 @@ function FineTuning() {
 
           <div className="w-3/12 border-r border-slate-600">
             <div className="bg-slate-300  p-3  border-b border-slate-600">
-              Input Prompt
+              Output Prompt
             </div>
             <div className="bg-slate-100 p-3  border-slate-600 ">
               {outputText && (
@@ -277,9 +337,9 @@ function FineTuning() {
     setButtonPushed(2);
   }
 
-  useEffect(() => {
-    showContentEditor();
-  }, []);
+  // useEffect(() => {
+  //   showContentEditor();
+  // }, []);
 
   return (
     <>
