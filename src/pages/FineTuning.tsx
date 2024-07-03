@@ -12,7 +12,7 @@ function FineTuning() {
   const [selectedDatasetMC, setSelectedDatasetMC] = useState<string>('');
   const [inputText, setInputText] = useState('');
   const [outputText, setOutputText] = useState('');
-  const [epoch, setEpoch] = useState<number>('');
+  const [epoch, setEpoch] = useState<string>('');
 
   useEffect(() => {
      axios.get('http://localhost:5000/magicalCodex/models_MC')
@@ -41,7 +41,7 @@ function FineTuning() {
   }, [modelsMC, datasetsMC]);
 
   useEffect(() => {
-    if (epoch >= 0) {
+    if (epoch.length >= 0) {
       showContentEditor();
     }
   }, [epoch]);
@@ -70,9 +70,30 @@ function FineTuning() {
 
   const handleEpochChange = (event: ChangeEvent<HTMLInputElement>) => {
     console.log('Epochs:', event.target.value)
-    const newEpoch = parseFloat(event.target.value);
-    setEpoch(newEpoch)
+    // const newEpoch = parseFloat(event.target.value);
+    // setEpoch(newEpoch)
+    // setEpoch(event.target.value)
+    const newValue = event.target.value;
+    if (/^\d*\.?\d*$/.test(newValue)) {
+      console.log('Epochs:', newValue);
+      setEpoch(newValue);
+    }
   }
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key.match(/[^0-9.]/) && event.key !== 'Backspace') {
+      event.preventDefault();
+    }
+  };
+
+  const handleBlur = () => {
+    const newEpoch = parseFloat(epoch);
+    if (!isNaN(newEpoch)) {
+      setEpoch(newEpoch.toString());
+    } else {
+      setEpoch('');
+    }
+  };
 
   const handleTestAndTrain = async () => {
     if (!selectedDatasetMC && !selectedModelMC) {
@@ -242,6 +263,8 @@ function FineTuning() {
                 className="h-12 w-full border border-slate-600 rounded-md pl-2 pr-2"
                 value={epoch}
                 onChange={handleEpochChange}
+                onBlur={handleBlur}
+                onKeyDown={handleKeyDown}
               />
             </div>
 
