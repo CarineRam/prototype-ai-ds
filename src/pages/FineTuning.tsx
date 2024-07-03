@@ -152,13 +152,15 @@ function FineTuning() {
           prompt_text: inputText,
         })
       });
-      const predictWord = await predictWordFineTuning.json()
-      setOutputText(predictWord.generated_text)
 
       if (!predictWordFineTuning.ok) {
-        throw new Error('HTTP error! Status: ${response.status}') //TEST BERT
+        throw new Error('HTTP error! Status: ${predictWordFineTuning.status}')
       }
-    }
+
+      const predictWord = await predictWordFineTuning.json()
+      console.log(predictWord)
+      setOutputText(predictWord.predicted_token)
+    } 
     
   }
 
