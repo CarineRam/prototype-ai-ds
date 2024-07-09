@@ -361,11 +361,7 @@ function FineTuning() {
     )
     setButtonPushed(2);
   }
-
-  // useEffect(() => {
-  //   showContentEditor();
-  // }, []);
-
+  
   return (
     <>
 
@@ -393,7 +389,7 @@ function FineTuning() {
           </div>
           <div className="item-to-align">
             <button className="pl-5 pr-5 pt-3 pb-3 border border-slate-500 rounded-lg bg-slate-500 hover:bg-slate-600">
-              Create fine tune
+              Create Fine Tune
             </button>
           </div>
         </div>

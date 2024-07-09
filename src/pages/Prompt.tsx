@@ -2,12 +2,14 @@ import { FaUpload } from "react-icons/fa6";
 import { useState, useEffect, ReactNode, ChangeEvent } from 'react'
 import { LuRefreshCcw } from "react-icons/lu";
 import axios from "axios";
+import { GoXCircle } from "react-icons/go";
 
 function Prompt() {
   const [content, setContent] = useState<ReactNode | null>(null);
   const [buttonPushed, setButtonPushed] = useState(1);
   const [temperature, setTemperature] = useState<number>(0);
   const [maxLength, setMaxLength] = useState<number>(65);
+  const [stopSequences, setStopSequences] = useState<number>(0);
   const [modelsMC, setModelsMC] = useState<string[]>([]);
   const [selectedModelMC, setSelectedModelMC] = useState<string>("");
   const [selectedDatasetMC, setSelectedDatasetMC] = useState<string>('');
@@ -17,6 +19,9 @@ function Prompt() {
   const [gpt2OutputContent, setGpt2OutputContent] = useState(null);
   const [outputContent, setOutputContent] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState<string[]>([]);
+  const [modalSaveVariant, setModalSaveVariant] = useState(false);
+  const [nameSaveVariant, setNameSaveVariant] = useState('')
+  const [model, setModel] = useState('')
 
   const handleTemperatureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTemperature = parseFloat(e.target.value);
@@ -119,7 +124,13 @@ function Prompt() {
             headers: {
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ input_text: inputContent, max_length: maxLength })
+            body: JSON.stringify({ 
+              model: 'Bert',
+              input_text: inputContent, 
+              max_length: maxLength,
+              temperature: temperature,
+              stopSequences: stopSequences,
+            })
           });
           const predictMaskData = await predictMaskResponse.json();
           setBertOutputContent(predictMaskData.predicted_token);
@@ -131,7 +142,13 @@ function Prompt() {
             headers: {
               'Content-type': 'application/json'
             },
-            body: JSON.stringify({ input_text: inputContent, max_length: maxLength })
+            body: JSON.stringify({
+              model: 'GPT-2',
+              input_text: inputContent, 
+              max_length: maxLength,
+              temperature: temperature,
+              stopSequences: stopSequences,
+            })
           });
           const generateTextData = await generateTextResponse.json()
           setOutputContent(generateTextData.generated_text);
@@ -139,11 +156,11 @@ function Prompt() {
       } catch (error) {
         console.error("Error fetching the API", error);
       }
-    } else if (selectedTemplate.includes('genericClassification')){
+    } else if (selectedTemplate.includes('genericClassification')) {
       console.log('Generic Classification Template selected')
-    } else if (selectedTemplate.includes('namedEntityExtraction')){
+    } else if (selectedTemplate.includes('namedEntityExtraction')) {
       console.log('Named Entity Extraction Template selected')
-    } else if (selectedTemplate.includes('oneSentenceSummarization')){
+    } else if (selectedTemplate.includes('oneSentenceSummarization')) {
       console.log('One Sentence Summerization Template selected')
     } else {
       alert("Please select a template first")
@@ -156,6 +173,38 @@ function Prompt() {
     setInputContent(e.target.value);
     console.log(e.target.value)
   };
+
+  const toggleModalSaveVariant = () => {
+    setModalSaveVariant(!modalSaveVariant);
+  }
+
+  if (modalSaveVariant) {
+    document.body.classList.add('active-modalSaveVariant')
+  } else {
+    document.body.classList.remove('active-modalSaveVariant')
+  }
+
+  const handleSaveVariant = async () => {
+    const saveVariantResponse = await fetch('http://127.0.0.1:5000/magicalCodex/save_parameters', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: nameSaveVariant,
+        model: selectedModelMC,
+        max_length: maxLength,
+        temperature: temperature,
+        stopSequences: stopSequences,
+      })
+    })
+    const handleSaveVariantData = await saveVariantResponse.json()
+  }
+
+  const handleSaveVariantInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setNameSaveVariant(e.target.value);
+    console.log(e.target.value)
+  }
 
   return (
     <>
@@ -183,7 +232,10 @@ function Prompt() {
             </button>
           </div>
           <div className="item-to-align">
-            <button className="pl-5 pr-5 pt-3 pb-3 border border-slate-500 rounded-lg bg-slate-500 hover:bg-slate-600">
+            <button
+              className="pl-5 pr-5 pt-3 pb-3 border border-slate-500 rounded-lg bg-slate-500 hover:bg-slate-600"
+              onClick={toggleModalSaveVariant}
+            >
               Save New Variant
             </button>
           </div>
@@ -301,7 +353,7 @@ function Prompt() {
                   <button onClick={handleDecrementTokens}>-&nbsp; </button>
                   <input
                     type="text"
-                    value={maxLength}                    
+                    value={maxLength}
                     className="input w-20 border border-slate-600 rounded-md pl-2 pr-2"
                   />
                   <button onClick={handleIncrementTokens}> &nbsp;+</button>
@@ -324,7 +376,11 @@ function Prompt() {
             <div className="mb-3">
               <p className="mb-3">Stop Sequence</p>
 
-              <input type="text" className="h-12 w-full border border-slate-600 rounded-md pl-2 pr-2" />
+              <input 
+                type="text" 
+                className="h-12 w-full border border-slate-600 rounded-md pl-2 pr-2"
+                value= {stopSequences}
+                />
             </div>
           </div>
 
@@ -385,6 +441,41 @@ function Prompt() {
           </div>
         </div>
       </div>
+
+      {modalSaveVariant && (
+        <>
+          <div className="modal fixed top-0 left-[15vw] right-0 bottom-0 overflow-auto">
+            <div onClick={toggleModalSaveVariant} className="overlay bg-slate-800 fixed top-0 left-[15vw] right-0 bottom-0"></div>
+            <div className="modal-evaluation w-[40vw] text-slate-200 top-[35%] left-[27%]"> {/* bg modal in css Review */}
+              <div className="flex justify-between">
+                <h1 className="text-xl mb-10 mt-5"><strong>Enter a name for your new variant :</strong></h1>
+                <button onClick={toggleModalSaveVariant}><GoXCircle className="text-4xl" /></button>
+              </div>
+              <div>
+                <input 
+                  className="w-[100%] border border-slate-800 h-12 p-3 text-slate-800 rounded-lg" placeholder="Enter your variant name"
+                  value={nameSaveVariant}
+                  onChange={handleSaveVariantInputChange}
+                /> 
+              </div>
+
+              <div className="flex justify-between">
+                <div></div>
+                <div className="flex gap-5">
+                  <button 
+                    className="p-3 border border-slate-700 text-slate-700 mt-5 bg-white"
+                    onClick={toggleModalSaveVariant}
+                  >Cancel</button>
+                  <button 
+                    className="p-3 border border-slate-700 text-white mt-5 bg-slate-700"
+                    onClick={handleSaveVariant}
+                    >Save New Variant</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
 
     </>
   )

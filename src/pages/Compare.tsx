@@ -1,9 +1,33 @@
 import { IoIosApps } from "react-icons/io";
 import Switch from '@mui/material/Switch';
 import { LuRefreshCcw } from "react-icons/lu";
+import React, { useEffect, useState } from "react";
+import axios from 'axios'
 
+interface Parameter {
+  id: number;
+  name: string;
+  model: string;
+  temperature: number;
+  max_tokens: number;
+  stop_sequences: string;
+  save_date: string;
+}
 
 function Compare() {
+  const [parameters, setParameters] = useState<Parameter[]>([]);
+
+  useEffect(() => {
+    axios.get<Parameter[]>('http://localhost:5000/magicalCodex/view_parameters')
+      .then(response => {
+        setParameters(response.data.reverse())
+        console.log(response.data)
+      })
+      .catch(error => {
+        console.error('There was an error fetching the parameters!', error)
+      })
+  }, []);
+
   return (
     <div className="pl-20 pt-20 pr-20 pb-20 text-white">
       <h1 className="text-3xl"><strong>Compare</strong></h1>
