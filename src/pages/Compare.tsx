@@ -203,7 +203,7 @@ function Compare() {
             </div>
           </div >
 
-          <div className="mt-10 items-center bg-slate-200 text-slate-800 p-4 border border-slate-600 rounded-xl">
+          {/* <div className="mt-10 items-center bg-slate-200 text-slate-800 p-4 border border-slate-600 rounded-xl">
             <div className="flex gap-5 items-center">
               <p className="text-xl">&nbsp;Evaluate</p>
               <select className='mb-3 p-2 h-10 rounded-md border border-slate-800 bg-slate-300' name="" id="">
@@ -251,10 +251,10 @@ function Compare() {
               </div>
 
               <div className="w-4/12 border-r border-slate-600">
-                <div className="bg-slate-300  p-3 rounded-tr-xl border-b border-slate-600">
+                <div className="bg-slate-300  p-3 border-b border-slate-600">
                   {selectedVariant1.name}
                 </div>
-                <div className="bg-slate-100 p-3 border-slate-600 ">
+                <div className="bg-slate-100 p-3 border-slate-600">
 
                 </div>
               </div>
@@ -270,7 +270,7 @@ function Compare() {
             </div>
 
 
-          </div>
+          </div> */}
         </div>
       )}
 
